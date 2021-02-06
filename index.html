@@ -62,7 +62,37 @@
           </div>
         </div>
       </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div id="country-chart-nav">
+            <ul class="nav nav-tabs justify-content-center">
+              <li class="nav-item">
+                <button class="nav-link active" onclick="drawCountryBarChart()">Requests</a>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link" onclick="drawCountryBarChart()">Residents</a>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link" onclick="drawCountryBarChart()">Population</a>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link" onclick="drawCountryBarChart()">GDP</a>
+              </li>
+            </ul>
+          </div>
+          <div class="options custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeYears()">
+            <label class="custom-control-label" for="normalize-country-switch">Normalize by population</label>
+          </div>
+          <svg id="country-bar-chart" class="mx-auto">
+          </svg>
+
+        </div>
+      </div>
     </div>
+  
+  
 
 
 <div class="tooltip">

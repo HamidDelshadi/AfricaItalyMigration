@@ -114,3 +114,20 @@ font-size: .8rem;
 .col-normal{
     width: 50%;
 }
+
+
+#country-chart-nav
+{
+    margin-top:30px;
+}
+
+#country-bar-chart
+{
+    width: 100%;
+    height: 700px;
+}
+
+.options{
+    text-align: center;
+    margin-top: 8px;
+}
