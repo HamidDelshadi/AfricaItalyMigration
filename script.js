@@ -1,4 +1,4 @@
-var DataContext = {}
+var DataContext = {codes:{}, selectedCountry:""};
 
 function drawMap(mapData){
   const zoom = d3.zoom()
@@ -16,8 +16,29 @@ function drawMap(mapData){
           .append("path")
           .attr("d", path) 
           .classed("countries", true)
-          .attr("id", d=>d.properties.iso_a3);
+          .attr("id", d=>d.properties.iso_a3)
+          .on("click", countryMouseClick)
+          .on("mouseenter", countryMouseEnter)
+          .on("mousemove", countryMouseMove)
+          .on("mouseleave", countryMouseLeave);
   d3.select("#map-svg g").call(zoom);
+}
+
+function deselectAllCountries(){
+  d3.select("#map-svg g").selectAll("path").classed("country-active", false);
+}
+
+
+function countryMouseClick(evnt, datum){
+  deselectAllCountries();
+  const e = d3.select("#map-svg g").selectAll("path").nodes();
+  const index = e.indexOf(this);
+  d3.select(this).classed("country-active",true);
+
+  var country = DataContext.codes[datum.properties.iso_a3];
+  DataContext.selectedCountry=country;
+  showTotal(false);
+  drawYearBarChart(country);
 }
 
 function zoomed(event) {
@@ -26,8 +47,30 @@ function zoomed(event) {
   g.attr("transform", transform);
   g.attr("stroke-width", 1 / transform.k);
 }
+function countryMouseEnter(ent, datum){
+  var tooltip = d3.select(".tooltip").style("opacity", 1);
+  tooltip.select("#tooltip-country-name").text(DataContext.codes[datum.properties.iso_a3]);
+}
+function countryMouseMove(evnt, datum){
+  tooltip = d3.select(".tooltip");
+  tooltip.style("transform", `translate(`
+      + `calc( -50% + ${evnt.pageX}px),`
+      + `calc( 10% + ${evnt.pageY}px)`
+      + `)`)
+}
+function countryMouseLeave() {
+  //d3.select(".tooltip").style("opacity", 0)
+}
+function normalizeYears()
+{
 
+}
 function drawYearBarChart(country="Africa"){
+
+  d3.select("#selected-country-label").text(country);
+  if(country!="Africa")
+    d3.select("#selected-country-button").text(country);
+
   var margin = ({top: 50, right: 50, bottom: 60, left: 80})
   var svgBounds = d3.select("#year-bar-chart").node().getBoundingClientRect();
 
@@ -58,28 +101,34 @@ function drawYearBarChart(country="Africa"){
 
   color = d3.scaleOrdinal()
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
-    
+  bar_styler = (bar)  => {
+    return bar.attr("x", d => x1(d.key))
+      .attr("y", d => y(d.value))
+      .attr("width", x1.bandwidth())
+      .attr("height", d => y(0) - y(d.value))
+      .attr("fill", d => color(d.key));
+  }
+
+  const t = d3.transition().duration(500);
+
   var svg = d3.select("#year-bar-chart");
   svg.selectAll("g").data(data).join("g")
     .attr("transform", d => `translate(${x0(d[groupKey])},0)`)
     .selectAll("rect")
     .data(d=>keys.map(key => ({key, value: d[key]})))
-    .join("rect")
-    .attr("x", d => x1(d.key))
-    .attr("y", d => y(d.value))
-    .attr("width", x1.bandwidth())
-    .attr("height", d => y(0) - y(d.value))
-    .attr("fill", d => color(d.key));
-
+    .join(
+      enter => bar_styler(enter.append("rect")),
+      update => update.call(u => bar_styler(u.transition(t))),
+      exit => exit.remove()
+    );
+  
   xAxis = g => g
-    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .attr("transform", `translate(0,${height - margin.bottom})`)    
     .call(d3.axisBottom(x0).tickSizeOuter(0))
-    .call(g => g.select(".domain").remove())
 
   yAxis = g => g
     .attr("transform", `translate(${margin.left},0)`)
     .call(d3.axisLeft(y).ticks(null, "s"))
-    .call(g => g.select(".domain").remove())
     .call(g => g.select(".tick:last-of-type text").clone()
         .attr("x", 3)
         .attr("text-anchor", "start")
@@ -94,14 +143,14 @@ function drawYearBarChart(country="Africa"){
 
   legend = svg => {
         const g = svg
-            .attr("transform", `translate(${width},0)`)
+            .attr("transform", `translate(${width},10)`)
             .attr("text-anchor", "end")
             .attr("font-family", "sans-serif")
             .attr("font-size", 10)
           .selectAll("g")
           .data(color.domain().slice().reverse())
           .join("g")
-            .attr("transform", (d, i) => `translate(0,${i * 20})`);
+            .attr("transform", (d, i) => `translate(0,${10 + i * 20})`);
       
         g.append("rect")
             .attr("x", -19)
@@ -119,6 +168,21 @@ function drawYearBarChart(country="Africa"){
       .call(legend);
 }
 
+function showTotal(flag){
+    d3.select("#selected-country-button").classed("active", !flag);
+    d3.select("#africa-button").classed("active", flag);
+    if(flag)
+    {
+      drawYearBarChart("Africa");
+    }
+    else
+    {
+      if(DataContext.selectedCountry)
+        drawYearBarChart(DataContext.selectedCountry);
+    }
+}
+
+
 function loadData(){
   loadYears = function(csv,dataName){
     csv.forEach(d => {
@@ -129,7 +193,11 @@ function loadData(){
     console.log(dataName);
     DataContext[dataName] = csv;
   }
+  
   Promise.all([
+      d3.csv("data/allcodes.csv").
+        then(function (csv){
+        csv.forEach(d=> DataContext.codes[d.code.trim()]=d.country.trim())}),
       d3.csv("data/year-eu.csv").then(csv=>loadYears(csv,"yearsEU")),
       d3.csv("data/year-it.csv").then(csv=>loadYears(csv,"yearsIT"))
     ]).then(()=>drawYearBarChart());

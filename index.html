@@ -36,20 +36,71 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-6" id="map-col">
+          
           <svg id="map-svg" viewbox="0 0 700 600" preserveAspectRatio="xMinYMin">
             <g></g>
           </svg>
         </div>
   
         <div class="col-sm-6 year-diagram align-self-center">
+          <ul class="nav nav-tabs justify-content-center">
+            <li class="nav-item">
+              <button id="africa-button" class="nav-link active" onclick="showTotal(true)">Africa</a>
+            </li>
+            <li class="nav-item">
+              <button id="selected-country-button" class="nav-link" onclick="showTotal(false)">Select a Country</a>
+            </li>
+          </ul>
           <svg id="year-bar-chart" class="mx-auto">
           </svg>
+          
+          <h5>Number of asylum requests from</h5>
+          <h5 id="selected-country-label">Africa</h5>
+          <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="normalize-years-switch" onchange="normalizeYears()">
+            <label class="custom-control-label" for="normalize-years-switch">Normalize by population</label>
+          </div>
         </div>
       </div>
     </div>
 
 
-
+<div class="tooltip">
+    <h6 id="tooltip-country-name">Country</h6>
+    <p id="tooltip-sub-title"><span id="tooltip-population">Population:60000000</span>
+      <span id="tooltip-GDP">GDP:897</span>
+    </p>
+    <table >
+      <colgroup>
+        <col class="col-name">
+        <col class="col-number">
+        <col class="col-normal">
+      </colgroup>
+      <thead>
+        <tr>
+          <th></th>
+          <th>request</th>
+          <th>request/population</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>EU</td>
+          <td id="tooltip-req-EU">1234488</td>
+          <td id="tooltip-req-normal-EU">0.01</td>
+        </tr>
+        <tr>
+          <td>IT</td>
+          <td id="tooltip-req-IT">143133</td>
+          <td id="tooltip-req-normal-IT">0.001</td>
+        </tr>
+      </tbody>
+      
+    </table>
+    <p class="tooltip-bracket">
+      <span id="tooltip-bracket-name" class="badge badge-pill badge-info">Medium Bracket</span>
+    </p>
+</div>
 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
