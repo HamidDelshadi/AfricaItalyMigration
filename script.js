@@ -1,4 +1,12 @@
-var DataContext = {codes:{}, selectedCountry:"", selectedPlot:"requests", normalizeCountries:false};
+var DataContext = {
+  codes:{}, 
+  selectedCountry:"", 
+  selectedCountryPlot:"requests", 
+  selectedBracketPlot:"requests", 
+  selectedSunburst: "IT",
+  normalizeCountries:false, 
+  normalizeBrackets:false
+};
 /////////////////////////////////////////////
 function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   
@@ -7,7 +15,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   var height = svgBounds.height;
   var width = svgBounds.width;
 
-  var groups =DataContext.total.map(d=>d[groupKey]);
+  var groups =data.map(d=>d[groupKey]);
     
   var x0 = d3.scaleBand()
     .domain(groups)
@@ -280,16 +288,16 @@ function showTotal(flag){
 function normalizeCountries()
 {
   DataContext.normalizeCountries = !DataContext.normalizeCountries;
-  drawCountryBarChart(DataContext.selectedPlot);
+  drawCountryBarChart(DataContext.selectedCountryPlot);
 }
 
 function drawCountryBarChart(plotType="requests"){
   d3.select("#country-chart-nav")
     .selectAll("button")
     .classed("active", false);
-  d3.select("#country-nav-"+plotType).classed("active", true);
+  d3.select("#country-nav-"+plotType.toLowerCase()).classed("active", true);
 
-  DataContext.selectedPlot=plotType;
+  DataContext.selectedCountryPlot=plotType;
 
   var margin = ({top: 50, right: 50, bottom: 200, left: 80})
 
@@ -342,10 +350,10 @@ function drawSunburst(data){
       .attr("viewBox", [0, 0, width, width])
       .style("font", "10px sans-serif");
 
-  const g = svg.append("g")
+  const g = svg.select("g")
       .attr("transform", `translate(${width / 2},${width / 2})`);
-
-  const path = g.append("g")
+  g.selectAll("g").data([0,0]).join("g")
+  const path = g.select("g:nth-child(1)")
     .selectAll("path")
     .data(root.descendants().slice(1))
     .join("path")
@@ -357,10 +365,12 @@ function drawSunburst(data){
       .style("cursor", "pointer")
       .on("click", clicked);
 
-  path.append("title")
-      .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+  path.selectAll("title")
+    .data(d => [`${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`])
+    .join("title")
+    .text(d=>d);
 
-  const label = g.append("g")
+  const label = g.select("g:nth-child(2)")
       .attr("pointer-events", "none")
       .attr("text-anchor", "middle")
       .style("user-select", "none")
@@ -368,11 +378,12 @@ function drawSunburst(data){
     .data(root.descendants().slice(1))
     .join("text")
       .attr("dy", "0.35em")
+      .attr("font-size", "1.4em")
       .attr("fill-opacity", d => +labelVisible(d.current))
       .attr("transform", d => labelTransform(d.current))
       .text(d => d.data.name);
 
-  const parent = g.append("circle")
+    const parent = g.selectAll("circle").data([0]).join("circle")
       .datum(root)
       .attr("r", radius)
       .attr("fill", "none")
@@ -391,9 +402,6 @@ function drawSunburst(data){
 
     const t = g.transition().duration(750);
 
-    // Transition the data on all arcs, even the ones that aren’t visible,
-    // so that if this transition is interrupted, entering arcs will start
-    // the next transition from the desired position.
     path.transition(t)
         .tween("data", d => {
           const i = d3.interpolate(d.current, d.target);
@@ -424,17 +432,80 @@ function drawSunburst(data){
     const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
     const y = (d.y0 + d.y1) / 2 * radius;
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-  
   }
   
 }
 
 /////////////////////////////////////
-function drawBracketBarChart(plotType="request"){
-  var margin = ({top: 50, right: 50, bottom: 80, left: 80})
-  drawGroupBarChart(DataContext.total, "#bracket-bar-chart", margin, "bracket",  ["EU", "IT"] );
+function normalizeBracket(){
+  DataContext.normalizeBrackets = !DataContext.normalizeBrackets;
+  drawBracketCharts(DataContext.selectedBracketPlot);
 }
 
+function drawBracketCharts(plotType="requests"){
+  d3.select("#bracket-chart-nav")
+  .selectAll("button")
+  .classed("active", false);
+d3.select("#bracket-nav-"+plotType).classed("active", true);
+
+DataContext.selectedBracketPlot=plotType;
+
+if(plotType=="requests")
+{
+  d3.selectAll("#sunburst-options").style("visibility", "visible")
+  var keys = ["EU", "IT"];
+}
+else
+{
+  d3.selectAll("#sunburst-options").style("visibility", "hidden")
+  var keys= [plotType]
+}
+
+  
+if(plotType=="requests" || plotType=="residents")
+{
+  d3.select("#normalize-bracket-switch").attr("disabled", null);
+  if(DataContext.normalizeBrackets)
+    keys = keys.map(d=> "Normal_"+d);
+}
+else
+  d3.select("#normalize-bracket-switch").attr("disabled", "disabled");
+
+
+  var margin = ({top: 50, right: 50, bottom: 80, left: 80})
+  drawGroupBarChart(DataContext.bracket, "#bracket-bar-chart", margin, "bracket",  keys);
+
+  if(plotType=="requests")
+  { 
+    let key = DataContext.selectedSunburst + "Hierarchy";
+    if(DataContext.normalizeBrackets)
+      key = "Normal_"+key;
+    var hierarchyData = DataContext[key];
+    drawSunburst(hierarchyData);
+  }
+  else
+  {
+    var hierarchyData = DataContext[keys[0]+"Hierarchy"]
+    drawSunburst(DataContext[keys[0]+"Hierarchy"]);
+  }
+  drawSunburst(hierarchyData);
+}
+function sunburstChangeLocation(location){
+  var otherLocation = "eu";
+  if(location=="EU")
+    otherLocation="it";
+    
+  d3.select(`#sunburst-${location.toLowerCase()}-button`)
+    .classed("btn-outline-secondary", false)
+    .classed("btn-secondary", true);
+
+  d3.select(`#sunburst-${otherLocation}-button`)
+    .classed("btn-outline-secondary", true)
+    .classed("btn-secondary", false);
+
+  DataContext.selectedSunburst = location;
+  drawBracketCharts(DataContext.selectedBracketPlot);
+}
 /////////////////////////////////////
 function loadData(){
   loadYears = function(csv,dataName){
@@ -454,7 +525,7 @@ function loadData(){
       d3.csv("data/year-eu.csv").then(csv=>loadYears(csv,"yearsEU")),
       d3.csv("data/year-it.csv").then(csv=>loadYears(csv,"yearsIT"))
     ]).then(()=>drawYearBarChart());
-  
+  Promise.all([
   d3.csv("data/total.csv").then(function(csv){
     csv.forEach(d=>
       {
@@ -470,46 +541,57 @@ function loadData(){
         {
           d["EU"+i]= +d["EU"+i];
           d["IT"+i]= +d["IT"+i];
+          d["Normal_EU"+i]= +d["Normal_EU"+i];
+          d["Normal_IT"+i]= +d["Normal_IT"+i];
         }
       }
     );
     DataContext.total = csv;
-    var EUKeys=[]
-    var ITKeys=[]
+    var EUKeys=[];
+    var ITKeys=[];
+    var NormalEUKeys=[];
+    var NormalITKeys=[];
     for(i=2013;i<=2018;i++)
     {
       EUKeys.push("EU"+i);
       ITKeys.push("IT"+i);
+      NormalEUKeys.push("Normal_EU"+i);
+      NormalITKeys.push("Normal_IT"+i);      
     }
-
-    DataContext.EUHierarchy = changeToHierarchy(csv, EUKeys);
-    DataContext.ITHierarchy = changeToHierarchy(csv, ITKeys);
-
+    var hKeys = ["bracket","country"];
+    DataContext.EUHierarchy = changeToHierarchy(csv,hKeys, EUKeys);
+    DataContext.ITHierarchy = changeToHierarchy(csv,hKeys, ITKeys);
+    DataContext.residentsHierarchy = changeToHierarchy(csv,hKeys, ["residents"]);
+    DataContext.populationHierarchy = changeToHierarchy(csv,hKeys, ["population"]);
+    DataContext.Normal_EUHierarchy = changeToHierarchy(csv,hKeys, NormalEUKeys);
+    DataContext.Normal_ITHierarchy = changeToHierarchy(csv,hKeys, NormalITKeys);
+    DataContext.Normal_residentsHierarchy = changeToHierarchy(csv,hKeys, ["Normal_residents"]);
     
     drawCountryBarChart();
-    drawSunburst(DataContext.EUHierarchy);
-  })
+    
+  }),
   d3.csv("data/bracket.csv").then(csv=>{
     csv.forEach(d=>{
-      d.IT =+d.IT;
-      d.EU =+d.EU;
-      d.residents =+d.residents;
+      d.IT = +d.IT;
+      d.EU = +d.EU;
+      d.residents = +d.residents;
       d.Normal_IT = +d.Normal_IT;
       d.Normal_EU = +d.Normal_EU;
       d.Normal_residents = +d.Normal_residents;
     })
     DataContext.bracket = csv;
-    drawBracketBarChart();
-  })
+  })]).then(()=>drawBracketCharts());
   
+
+
   d3.json("data/custom.geo.json").then(function(mapData){
     console.log(mapData);
     drawMap(mapData);
   });//.catch( err =>console.log(err));
 }
 
-function changeToHierarchy(raw,leafKeys){
-  keys = ["bracket","country"]
+function changeToHierarchy(raw,keys,leafKeys){
+  
   data = {name:"brackets", children:[]};
 
   raw.forEach(d=>{

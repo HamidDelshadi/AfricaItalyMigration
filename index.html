@@ -92,16 +92,16 @@
       </div>
 
       <div class="row">
-        <div class="col-12">
+        <div class="col-12" id="bracket-chart-nav">
           <ul class="nav nav-tabs justify-content-center">
             <li class="nav-item">
-              <button id="country-nav-requests" class="nav-link active" onclick="drawBracketBarChart('requests')">Requests</a>
+              <button id="bracket-nav-requests" class="nav-link active" onclick="drawBracketCharts('requests')">Requests</a>
             </li>
             <li class="nav-item">
-              <button id="country-nav-residents" class="nav-link" onclick="drawBracketBarChart('residents')">Residents</a>
+              <button id="bracket-nav-residents" class="nav-link" onclick="drawBracketCharts('residents')">Residents</a>
             </li>
             <li class="nav-item">
-              <button id="country-nav-population" class="nav-link" onclick="drawBracketBarChart('population')">Population</a>
+              <button id="bracket-nav-population" class="nav-link" onclick="drawBracketCharts('population')">Population</a>
             </li>
           </ul>
           <div class="options custom-control custom-switch">
@@ -113,7 +113,14 @@
       <div class="row">
 
         <div class="col-sm-6">
+          <div id="sunburst-options">
+            <div class="btn-group">
+              <button id="sunburst-eu-button" type="button" class="btn btn-outline-secondary" onclick="sunburstChangeLocation('EU')">EU</button>
+              <button id="sunburst-it-button" type="button" class="btn btn-secondary" onclick="sunburstChangeLocation('IT')">Italy</button>
+            </div>
+          </div>
           <svg id="sunburst" class="mx-auto">
+            <g></g>
           </svg>
           
         </div>
