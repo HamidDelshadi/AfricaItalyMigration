@@ -211,7 +211,6 @@ function drawCountryBarChart(plotType="requests"){
     var keys = ["EU", "IT"];
   else
     var keys= [plotType]
-  
     
   if(plotType=="requests" || plotType=="residents")
   {
