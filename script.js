@@ -341,9 +341,25 @@ function loadData(){
         d.Normal_residents = +d.Normal_residents;
         d.population = +d.population;
         d.residents = +d.residents;
+        for(i=2013;i<=2018;i++)
+        {
+          d["EU"+i]= +d["EU"+i];
+          d["IT"+i]= +d["IT"+i];
+        }
       }
     );
     DataContext.total = csv;
+    var EUKeys=[]
+    var ITKeys=[]
+    for(i=2013;i<=2018;i++)
+    {
+      EUKeys.push("EU"+i);
+      ITKeys.push("IT"+i);
+    }
+
+    DataContext.EUHierarchy = changeToHierarchy(csv, EUKeys);
+    DataContext.ITHierarchy = changeToHierarchy(csv, ITKeys);
+
     drawCountryBarChart();
   })
   
@@ -351,6 +367,28 @@ function loadData(){
     console.log(mapData);
     drawMap(mapData);
   });//.catch( err =>console.log(err));
+}
+function changeToHierarchy(raw,leafKeys){
+  keys = ["bracket","country"]
+  data = {name:"brackets", children:[]};
+
+  
+  raw.forEach(d=>{
+    var node = data.children;
+    keys.forEach(key =>{
+      nextNode = node.filter(a=>a.name==d[key])[0]
+      if(!nextNode)
+      {
+        nextNode={name:d[key], children:[]};
+        node.push(nextNode);
+      } 
+      node = nextNode.children;   
+    });
+    leafKeys.forEach(leaf=>{
+      node.push({name:leaf, value:d[leaf]})
+    });
+  });
+  return data;
 }
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
