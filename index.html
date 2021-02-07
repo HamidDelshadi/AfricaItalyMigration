@@ -92,6 +92,26 @@
       </div>
 
       <div class="row">
+        <div class="col-12">
+          <ul class="nav nav-tabs justify-content-center">
+            <li class="nav-item">
+              <button id="country-nav-requests" class="nav-link active" onclick="drawBracketBarChart('requests')">Requests</a>
+            </li>
+            <li class="nav-item">
+              <button id="country-nav-residents" class="nav-link" onclick="drawBracketBarChart('residents')">Residents</a>
+            </li>
+            <li class="nav-item">
+              <button id="country-nav-population" class="nav-link" onclick="drawBracketBarChart('population')">Population</a>
+            </li>
+          </ul>
+          <div class="options custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="normalize-bracket-switch" onchange="normalizeBracket()">
+            <label class="custom-control-label" for="normalize-bracket-switch">Normalize by population (in 10,000 people)</label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+
         <div class="col-sm-6">
           <svg id="sunburst" class="mx-auto">
           </svg>

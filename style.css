@@ -131,3 +131,8 @@ font-size: .8rem;
     text-align: center;
     margin-top: 8px;
 }
+
+#bracket-bar-chart{
+    width: 500px;
+    height: 500px;
+}
