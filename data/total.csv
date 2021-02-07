@@ -6,13 +6,13 @@ Niger,21477348,870,2925,1135,low,1553
 Mozambique,29668834,1036,130,0,medium low,335
 Malawi,18622104,1066,1130,0,medium low,63
 Liberia,4731906,1215,2275,895,medium low,1449
-Somalia,14742523,1264,92155,9305,medium low,
+Somalia,14742523,1264,92155,9305,medium low,0
 Ethiopia,104957438,1335,23220,1260,medium low,7667
 Togo,7797694,1361,5785,1990,medium low,5551
 Madagascar,25570895,1370,725,35,medium low,1452
 Guinea-Bissau,1861283,1431,5845,3010,medium low,1995
 Sierra Leone,7557212,1462,8055,2350,medium low,1905
-Eritrea,4474690,1510,155975,17930,medium low,
+Eritrea,4474690,1510,155975,17930,medium low,0
 Burkina Faso,19193382,1547,5465,2670,medium low,14435
 Gambia,2100568,1551,59320,37345,medium low,19567
 Rwanda,12208407,1577,3155,20,medium low,472
@@ -24,12 +24,12 @@ Chad,14899994,1996,4590,335,medium low,492
 South Sudan,12575714,2135,760,45,medium low,86
 Zimbabwe,16529904,2155,3780,20,medium low,181
 "Tanzania, United Republic of",57310019,2325,1150,50,medium low,1154
-Comoros,813912,2500,3175,60,medium low,
+Comoros,813912,2500,3175,60,medium low,0
 Lesotho,2233339,2628,20,0,medium low,14
 Kenya,49699862,2686,2735,140,medium low,2338
-Djibouti,956985,2705,1265,0,medium low,
+Djibouti,956985,2705,1265,0,medium low,0
 Senegal,15850567,2781,42930,30280,medium low,105937
-Sao Tome and Principe,204327,2810,15,0,medium low,
+Sao Tome and Principe,204327,2810,15,0,medium low,0
 Cte d'Ivoire,24294750,2880,44780,22240,medium low,30271
 Cameroon,24053727,3115,23155,5015,medium low,14529
 Mauritania,4420184,3531,7185,355,medium low,837
@@ -38,7 +38,7 @@ Ghana,28833629,3699,28870,16580,medium low,49940
 Sudan,40533330,4077,48365,1760,medium high,2503
 Congo,5260750,5377,8300,400,medium high,3267
 Nigeria,190886311,5473,166635,87255,medium high,106069
-Cabo Verde,546388,5957,85,10,medium high,
+Cabo Verde,546388,5957,85,10,medium high,0
 Angola,29784193,6640,7350,30,medium high,1266
 Morocco,35739580,6970,39350,6325,medium high,416531
 Eswatini,1367254,7670,135,10,medium high,29
@@ -49,7 +49,7 @@ South Africa,56717156,12288,1375,15,high,603
 Algeria,41318142,13323,48995,800,high,19823
 Botswana,2291661,14678,180,0,high,11
 Gabon,2025137,16414,1405,75,high,367
-Mauritius,1264613,17684,695,40,high,
+Mauritius,1264613,17684,695,40,high,0
 Libya,6374616,17788,22720,1575,high,2334
-Seychelles,95843,23559,25,0,high,
+Seychelles,95843,23559,25,0,high,0
 Equatorial Guinea,1267689,32364,315,35,high,248

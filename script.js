@@ -192,8 +192,10 @@ function drawCountryBarChart(plotType="requests"){
 
   var groupKey = "country";
   var groups =DataContext.total.map(d=>d.country);
-
-  var keys = ["EU", "IT"];
+  if(plotType=="requests")
+    var keys = ["EU", "IT"];
+  else
+    var keys= [plotType]
 
   data = DataContext.total
   
