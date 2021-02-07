@@ -68,22 +68,22 @@
           <div id="country-chart-nav">
             <ul class="nav nav-tabs justify-content-center">
               <li class="nav-item">
-                <button class="nav-link active" onclick="drawCountryBarChart('requests')">Requests</a>
+                <button id="country-nav-requests" class="nav-link active" onclick="drawCountryBarChart('requests')">Requests</a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="drawCountryBarChart('residents')">Residents</a>
+                <button id="country-nav-residents" class="nav-link" onclick="drawCountryBarChart('residents')">Residents</a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="drawCountryBarChart('population')">Population</a>
+                <button id="country-nav-population" class="nav-link" onclick="drawCountryBarChart('population')">Population</a>
               </li>
               <li class="nav-item">
-                <button class="nav-link" onclick="drawCountryBarChart('GDP')">GDP</a>
+                <button id="country-nav-gdp" class="nav-link" onclick="drawCountryBarChart('GDP')">GDP</a>
               </li>
             </ul>
           </div>
           <div class="options custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeYears()">
-            <label class="custom-control-label" for="normalize-country-switch">Normalize by population</label>
+            <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeCountries()">
+            <label class="custom-control-label" for="normalize-country-switch">Normalize by population (in 10,000 people)</label>
           </div>
           <svg id="country-bar-chart" class="mx-auto">
           </svg>

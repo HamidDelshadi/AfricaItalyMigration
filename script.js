@@ -1,4 +1,4 @@
-var DataContext = {codes:{}, selectedCountry:"", selectedPlot:"requests"};
+var DataContext = {codes:{}, selectedCountry:"", selectedPlot:"requests", normalizeCountries:false};
 
 function drawMap(mapData){
   const zoom = d3.zoom()
@@ -182,8 +182,21 @@ function showTotal(flag){
     }
 }
 //country chart/////////////////////////////////////////////////////
+function normalizeCountries()
+{
+  DataContext.normalizeCountries = !DataContext.normalizeCountries;
+  drawCountryBarChart(DataContext.selectedPlot);
+}
 function drawCountryBarChart(plotType="requests"){
+  d3.select("#country-chart-nav")
+    .selectAll("button")
+    .classed("active", false);
+  d3.select("#country-nav-"+plotType).classed("active", true);
+  
+  DataContext.selectedPlot=plotType;
+
   svgId = "#country-bar-chart"
+  
   var margin = ({top: 50, right: 50, bottom: 200, left: 80})
   var svgBounds = d3.select(svgId).node().getBoundingClientRect();
 
@@ -192,10 +205,22 @@ function drawCountryBarChart(plotType="requests"){
 
   var groupKey = "country";
   var groups =DataContext.total.map(d=>d.country);
+
+
   if(plotType=="requests")
     var keys = ["EU", "IT"];
   else
     var keys= [plotType]
+  
+    
+  if(plotType=="requests" || plotType=="residents")
+  {
+    d3.select("#normalize-country-switch").attr("disabled", null);
+    if(DataContext.normalizeCountries)
+      keys = keys.map(d=> "Normal_"+d);
+  }
+  else
+    d3.select("#normalize-country-switch").attr("disabled", "disabled");
 
   data = DataContext.total
   
@@ -210,8 +235,8 @@ function drawCountryBarChart(plotType="requests"){
     .padding(0.05)
 
   var y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))]).nice()
-    .rangeRound([height - margin.bottom, margin.top])
+      .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))]).nice()
+      .rangeRound([height - margin.bottom, margin.top])
 
   color = d3.scaleOrdinal()
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
@@ -312,6 +337,9 @@ function loadData(){
         d.GDP = +d.GDP;
         d.EU = +d.EU;
         d.IT = +d.IT;
+        d.Normal_EU = +d.Normal_EU;
+        d.Normal_IT = +d.Normal_IT;
+        d.Normal_residents = +d.Normal_residents;
         d.population = +d.population;
         d.residents = +d.residents;
       }
