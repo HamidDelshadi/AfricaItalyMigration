@@ -105,27 +105,40 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .call(legend);
 }
 /////////////////////////////////////////
-function drawMap(mapData){
+function drawMap(){
+  mapData = DataContext.mapData;
   const zoom = d3.zoom()
       .scaleExtent([1, 8])
       .on("zoom", zoomed);
-
+  
+  var cScale = d3.scaleLinear()
+    .domain([0,d3.max(DataContext.ds, d => d.GDP)])
+    .range((["#b3d9ef", "#204a73"]));
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
   africaFeatures = mapData.features;
   console.log(africaFeatures);
   var map_svg = d3.select("#map-svg g")
-      .selectAll("path")
-          .data(africaFeatures)
-          .enter()
-          .append("path")
-          .attr("d", path) 
-          .classed("countries", true)
-          .attr("id", d=>d.properties.iso_a3)
-          .on("click", countryMouseClick)
-          .on("mouseenter", countryMouseEnter)
-          .on("mousemove", countryMouseMove)
-          .on("mouseleave", countryMouseLeave);
+    .selectAll("path")
+        .data(africaFeatures)
+        .enter()
+        .append("path")
+        .attr("d", path) 
+        .classed("countries", true)
+        .attr("id", d=>d.properties.iso_a3)
+        .style("fill", d=>
+        {
+          try{
+            return cScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].GDP)
+          }
+          catch(ex){
+            return "#d9d9d9";
+          }
+        })
+        .on("click", countryMouseClick)
+        .on("mouseenter", countryMouseEnter)
+        .on("mousemove", countryMouseMove)
+        .on("mouseleave", countryMouseLeave);
   d3.select("#map-svg g").call(zoom);
 }
 
@@ -511,18 +524,19 @@ function loadData(){
         d.Normal_residents = +d.Normal_residents;
       })
       DataContext.bracket = csv;
+    }),
+    d3.json("data/custom.geo.json").then(function(mapData){
+      DataContext.mapData =mapData;
     })
   ]).then(()=>{
     drawYearBarChart();
     drawBracketCharts();
-  });
+    drawMap();
+  });//.catch( err =>console.log(err));
   
 
 
-  d3.json("data/custom.geo.json").then(function(mapData){
-    console.log(mapData);
-    drawMap(mapData);
-  });//.catch( err =>console.log(err));
+  
 }
 
 function changeToHierarchy(raw,keys,leafKeys){
