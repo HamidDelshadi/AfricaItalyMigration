@@ -1,11 +1,13 @@
 var DataContext = {
   codes:{}, 
+  selectedYearPlot:"Africa",
   selectedCountry:"", 
   selectedCountryPlot:"requests", 
   selectedBracketPlot:"requests", 
   selectedSunburst: "IT",
   normalizeCountries:false, 
-  normalizeBrackets:false
+  normalizeBrackets:false,
+  normalizeYears:false,
 };
 /////////////////////////////////////////////
 function drawGroupBarChart(data, svgId, margin, groupKey, keys){
@@ -166,109 +168,35 @@ function countryMouseLeave() {
 }
 function normalizeYears()
 {
-
+  DataContext.normalizeYears = !DataContext.normalizeYears;
+  drawYearBarChart(DataContext.selectedYearPlot);
 }
-function drawYearBarChart(country="Africa"){
-
+function drawYearBarChart(country="Africa")
+{
+  DataContext.selectedYearPlot = country;
   d3.select("#selected-country-label").text(country);
-  if(country!="Africa")
-    d3.select("#selected-country-button").text(country);
-
+  d3.select("#selected-country-button").text(country);
   var margin = ({top: 50, right: 50, bottom: 60, left: 80})
-  var svgBounds = d3.select("#year-bar-chart").node().getBoundingClientRect();
-
-  var height = svgBounds.height;
-  var width = svgBounds.width;
-
-  var dEU = DataContext.yearsEU[DataContext.yearsEU.findIndex(item=>item.country == country)];
-  var dIT = DataContext.yearsIT[DataContext.yearsIT.findIndex(item=>item.country == country)];
-
-  var groups =DataContext.yearsEU.columns.slice(1,-1);
-  var keys = ["EU", "IT"];
-
-  data = groups.map(year=> {return {"year":year, "EU":dEU[year], "IT":dIT[year]};});
-  var groupKey = "year";
-  var x0 = d3.scaleBand()
-    .domain(groups)
-    .rangeRound([margin.left, width - margin.right])
-    .paddingInner(0.1)
-
-  var x1 = d3.scaleBand()
-    .domain(keys)
-    .rangeRound([0, x0.bandwidth()])
-    .padding(0.05)
-
-  var y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))]).nice()
-    .rangeRound([height - margin.bottom, margin.top])
-
-  color = d3.scaleOrdinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
-  bar_styler = (bar)  => {
-    return bar.attr("x", d => x1(d.key))
-      .attr("y", d => y(d.value))
-      .attr("width", x1.bandwidth())
-      .attr("height", d => y(0) - y(d.value))
-      .attr("fill", d => color(d.key));
+  var pre=""
+  if(DataContext.normalizeYears)
+    pre="Normal_"
+  var years=[];
+  var data;
+  for(i=2013;i<=2018;i++)
+    years.push(i);
+  if(country == "Africa")
+    data = years.map(year => {
+      return {"year": year, "EU":DataContext.total[pre+"EU"][year],"IT":DataContext.total[pre+"IT"][year]}
+    });
+  else
+  {
+    var row = DataContext.ds[DataContext.ds.findIndex(item=>item.country == country)];
+    data = years.map(year=>{
+      return {"year": year, "EU":row[pre+"EU"+year], "IT":row[pre+"IT"+year]};
+    });
   }
 
-  const t = d3.transition().duration(500);
-
-  var svg = d3.select("#year-bar-chart");
-  svg.selectAll("g").data(data).join("g")
-    .attr("transform", d => `translate(${x0(d[groupKey])},0)`)
-    .selectAll("rect")
-    .data(d=>keys.map(key => ({key, value: d[key]})))
-    .join(
-      enter => bar_styler(enter.append("rect")),
-      update => update.call(u => bar_styler(u.transition(t))),
-      exit => exit.remove()
-    );
-  
-  xAxis = g => g
-    .attr("transform", `translate(0,${height - margin.bottom})`)    
-    .call(d3.axisBottom(x0).tickSizeOuter(0))
-
-  yAxis = g => g
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y).ticks(null, "s"))
-    .call(g => g.select(".tick:last-of-type text").clone()
-        .attr("x", 3)
-        .attr("text-anchor", "start")
-        .attr("font-weight", "bold")
-        .text(data.y))
-    
-  svg.append("g")
-      .call(xAxis);
-
-  svg.append("g")
-      .call(yAxis);
-
-  legend = svg => {
-        const g = svg
-            .attr("transform", `translate(${width},10)`)
-            .attr("text-anchor", "end")
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 10)
-          .selectAll("g")
-          .data(color.domain().slice().reverse())
-          .join("g")
-            .attr("transform", (d, i) => `translate(0,${10 + i * 20})`);
-      
-        g.append("rect")
-            .attr("x", -19)
-            .attr("width", 19)
-            .attr("height", 19)
-            .attr("fill", color);
-      
-        g.append("text")
-            .attr("x", -24)
-            .attr("y", 9.5)
-            .attr("dy", "0.35em")
-            .text(d => d);
-      }
-  svg.append("g")
-      .call(legend);
+  drawGroupBarChart(data,"#year-bar-chart", margin,"year",["EU","IT"])
 }
 
 function showTotal(flag){
@@ -314,7 +242,7 @@ function drawCountryBarChart(plotType="requests"){
   }
   else
     d3.select("#normalize-country-switch").attr("disabled", "disabled");
-  drawGroupBarChart(DataContext.total, "#country-bar-chart", margin, "country", keys)
+  drawGroupBarChart(DataContext.ds, "#country-bar-chart", margin, "country", keys)
 }
 //sunburst////////////////////////
 function drawSunburst(data){
@@ -508,79 +436,86 @@ function sunburstChangeLocation(location){
 }
 /////////////////////////////////////
 function loadData(){
-  loadYears = function(csv,dataName){
-    csv.forEach(d => {
-      for(i=2013;i<=2018;i++)
-        d[i]= +d[i];
-      d.sum = +d.sum;
-    });
-    console.log(dataName);
-    DataContext[dataName] = csv;
-  }
-  
-  Promise.all([
-      d3.csv("data/allcodes.csv").
-        then(function (csv){
-        csv.forEach(d=> DataContext.codes[d.code.trim()]=d.country.trim())}),
-      d3.csv("data/year-eu.csv").then(csv=>loadYears(csv,"yearsEU")),
-      d3.csv("data/year-it.csv").then(csv=>loadYears(csv,"yearsIT"))
-    ]).then(()=>drawYearBarChart());
-  Promise.all([
-  d3.csv("data/total.csv").then(function(csv){
-    csv.forEach(d=>
-      {
-        d.GDP = +d.GDP;
-        d.EU = +d.EU;
-        d.IT = +d.IT;
-        d.Normal_EU = +d.Normal_EU;
-        d.Normal_IT = +d.Normal_IT;
-        d.Normal_residents = +d.Normal_residents;
-        d.population = +d.population;
-        d.residents = +d.residents;
-        for(i=2013;i<=2018;i++)
+
+  Promise.all([d3.csv("data/allcodes.csv").
+    then(function (csv){
+      csv.forEach(d=> DataContext.codes[d.code.trim()]=d.country.trim())}), 
+    d3.csv("data/ds.csv").then(function(csv){
+      var total ={
+        IT : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
+        EU : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
+        Normal_EU : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
+        Normal_IT : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0}
+      };
+      var totalPopulation =0;
+      csv.forEach(d=>
         {
-          d["EU"+i]= +d["EU"+i];
-          d["IT"+i]= +d["IT"+i];
-          d["Normal_EU"+i]= +d["Normal_EU"+i];
-          d["Normal_IT"+i]= +d["Normal_IT"+i];
+          d.GDP = +d.GDP;
+          d.EU = +d.EU;
+          d.IT = +d.IT;
+          d.Normal_EU = +d.Normal_EU;
+          d.Normal_IT = +d.Normal_IT;
+          d.Normal_residents = +d.Normal_residents;
+          d.population = +d.population;
+          d.residents = +d.residents;
+          totalPopulation +=d.population;
+          for(i=2013;i<=2018;i++)
+          {
+            d["EU"+i]= +d["EU"+i];
+            d["IT"+i]= +d["IT"+i];
+            d["Normal_EU"+i]= +d["Normal_EU"+i];
+            d["Normal_IT"+i]= +d["Normal_IT"+i];
+            total.IT[i] += d["IT"+i];
+            total.EU[i] += d["EU"+i];
+          }
         }
+      );
+      for(i=2013;i<=2018;i++)
+      {
+        total.Normal_EU[i] = total.EU[i]/totalPopulation*10000;
+        total.Normal_IT[i] = total.IT[i]/totalPopulation*10000;
       }
-    );
-    DataContext.total = csv;
-    var EUKeys=[];
-    var ITKeys=[];
-    var NormalEUKeys=[];
-    var NormalITKeys=[];
-    for(i=2013;i<=2018;i++)
-    {
-      EUKeys.push("EU"+i);
-      ITKeys.push("IT"+i);
-      NormalEUKeys.push("Normal_EU"+i);
-      NormalITKeys.push("Normal_IT"+i);      
-    }
-    var hKeys = ["bracket","country"];
-    DataContext.EUHierarchy = changeToHierarchy(csv,hKeys, EUKeys);
-    DataContext.ITHierarchy = changeToHierarchy(csv,hKeys, ITKeys);
-    DataContext.residentsHierarchy = changeToHierarchy(csv,hKeys, ["residents"]);
-    DataContext.populationHierarchy = changeToHierarchy(csv,hKeys, ["population"]);
-    DataContext.Normal_EUHierarchy = changeToHierarchy(csv,hKeys, NormalEUKeys);
-    DataContext.Normal_ITHierarchy = changeToHierarchy(csv,hKeys, NormalITKeys);
-    DataContext.Normal_residentsHierarchy = changeToHierarchy(csv,hKeys, ["Normal_residents"]);
-    
-    drawCountryBarChart();
-    
-  }),
-  d3.csv("data/bracket.csv").then(csv=>{
-    csv.forEach(d=>{
-      d.IT = +d.IT;
-      d.EU = +d.EU;
-      d.residents = +d.residents;
-      d.Normal_IT = +d.Normal_IT;
-      d.Normal_EU = +d.Normal_EU;
-      d.Normal_residents = +d.Normal_residents;
+      DataContext.total = total;
+      DataContext.ds = csv;
+      var EUKeys=[];
+      var ITKeys=[];
+      var NormalEUKeys=[];
+      var NormalITKeys=[];
+
+      for(i=2013;i<=2018;i++)
+      {
+        EUKeys.push("EU"+i);
+        ITKeys.push("IT"+i);
+        NormalEUKeys.push("Normal_EU"+i);
+        NormalITKeys.push("Normal_IT"+i);      
+      }
+      var hKeys = ["bracket","country"];
+      DataContext.EUHierarchy = changeToHierarchy(csv,hKeys, EUKeys);
+      DataContext.ITHierarchy = changeToHierarchy(csv,hKeys, ITKeys);
+      DataContext.residentsHierarchy = changeToHierarchy(csv,hKeys, ["residents"]);
+      DataContext.populationHierarchy = changeToHierarchy(csv,hKeys, ["population"]);
+      DataContext.Normal_EUHierarchy = changeToHierarchy(csv,hKeys, NormalEUKeys);
+      DataContext.Normal_ITHierarchy = changeToHierarchy(csv,hKeys, NormalITKeys);
+      DataContext.Normal_residentsHierarchy = changeToHierarchy(csv,hKeys, ["Normal_residents"]);
+      
+      drawCountryBarChart();
+      
+    }),
+    d3.csv("data/bracket.csv").then(csv=>{
+      csv.forEach(d=>{
+        d.IT = +d.IT;
+        d.EU = +d.EU;
+        d.residents = +d.residents;
+        d.Normal_IT = +d.Normal_IT;
+        d.Normal_EU = +d.Normal_EU;
+        d.Normal_residents = +d.Normal_residents;
+      })
+      DataContext.bracket = csv;
     })
-    DataContext.bracket = csv;
-  })]).then(()=>drawBracketCharts());
+  ]).then(()=>{
+    drawYearBarChart();
+    drawBracketCharts();
+  });
   
 
 
