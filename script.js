@@ -13,10 +13,7 @@ var DataContext = {
 /////////////////////////////////////////////
 function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   
-  var svgBounds = d3.select(svgId).node().getBoundingClientRect();
-
-  var height = svgBounds.height;
-  var width = svgBounds.width;
+  const {xv, yv, width, height} = d3.select(svgId).node().viewBox.baseVal;
 
   var groups =data.map(d=>d[groupKey]);
     
@@ -113,16 +110,13 @@ function createPattern(defs, fill) {
     .attr("height", 10)
     .attr("width", 10)
     .attr("patternTransform","rotate(-45)")
-    .attr("patternUnits","userSpaceOnUse")
-    //.attr("patternContentUnits","")
-    ;
+    .attr("patternUnits","userSpaceOnUse")    ;
 
   pattern
     .append("rect")
     .attr("height", "100%")
     .attr("width", "100%")
     .attr("fill", fill);
-    //patternUnits="userSpaceOnUse" width="1.0770936523746153" height="1.0770936523746153" patternTransform="rotate(-45)"
   pattern
     .append("rect")
     .attr("x", 5)
@@ -137,7 +131,6 @@ function createPatterns(svg, colors){
   });
 }
 
-
 /////////////////////////////////////////
 function drawMap(){
   svg_id ="#map-svg";
@@ -145,8 +138,8 @@ function drawMap(){
 
   var svgBounds = d3.select("#map-svg").node().getBoundingClientRect();
 
-  var height = svgBounds.height;
-  var width = svgBounds.width;
+  var height = 600;//svgBounds.height;
+  var width = 700;//svgBounds.width;
 
   const zoom = d3.zoom()
       .scaleExtent([1, 8])
@@ -295,7 +288,8 @@ function drawYearBarChart(country="Africa")
 {
   DataContext.selectedYearPlot = country;
   d3.select("#selected-country-label").text(country);
-  d3.select("#selected-country-button").text(country);
+  if(country!="Africa")
+    d3.select("#selected-country-button").text(country);
   var margin = ({top: 50, right: 50, bottom: 60, left: 80})
   var pre=""
   if(DataContext.normalizeYears)

@@ -6,12 +6,16 @@
     stroke: #f7f7f7;
     fill: #d9d9d9;
 }
-#map-svg{
-    margin-right: 50px;
+#year-bar-chart, #map-svg{
+    margin-right: 80px;
 }
-#year-bar-chart{
-    width: 500px;
-    height: 500px;
+/* #year-bar-chart{
+    width: 700px;
+    height: 400px;
+} */
+.container-fluid
+{
+    max-width: 1500px;
 }
 
 .year-diagram{
@@ -124,22 +128,15 @@ font-size: .8rem;
     margin-top:30px;
 }
 
-#country-bar-chart
-{
-    width: 100%;
-    height: 700px;
-}
-
 .options{
     text-align: center;
     margin-top: 8px;
 }
 
-#bracket-bar-chart{
-    width: 500px;
-    height: 500px;
-}
-
 #sunburst-options{
     height: 38px;
+}
+#sunburst{
+    margin-right: 50px;
+    margin-left: 50px;
 }

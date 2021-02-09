@@ -11,7 +11,7 @@
 </head>
 
 <body>
-
+  
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <span class="navbar-brand" href="#">Africa: Migrants and Income</span>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb">
@@ -35,13 +35,13 @@
     </nav>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-6" id="map-col">
+        <div class="col-md-6 align-self-center" id="map-col">
           
-          <svg id="map-svg" viewbox="0 0 700 600" preserveAspectRatio="xMinYMin">
+          <svg id="map-svg" viewbox="0 0 700 600" preserveAspectRatio="xMinYMid">
           </svg>
         </div>
   
-        <div class="col-sm-6 year-diagram align-self-center">
+        <div class="col-md-6 year-diagram align-self-center">
           <ul class="nav nav-tabs justify-content-center">
             <li class="nav-item">
               <button id="africa-button" class="nav-link active" onclick="showTotal(true)">Africa</a>
@@ -50,9 +50,9 @@
               <button id="selected-country-button" class="nav-link" onclick="showTotal(false)">Select a Country</a>
             </li>
           </ul>
-          <svg id="year-bar-chart" class="mx-auto">
-          </svg>
           
+          <svg id="year-bar-chart" viewbox="0 0 700 600" preserveAspectRatio="xMinYMin">
+          </svg>
           <h5>Number of asylum requests from</h5>
           <h5 id="selected-country-label">Africa</h5>
           <div class="custom-control custom-switch">
@@ -84,7 +84,7 @@
             <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeCountries()">
             <label class="custom-control-label" for="normalize-country-switch">Normalize by population (in 10,000 people)</label>
           </div>
-          <svg id="country-bar-chart" class="mx-auto">
+          <svg id="country-bar-chart" viewbox="0 0 1500 700" preserveAspectRatio="xMidYMid">
           </svg>
 
         </div>
@@ -111,20 +111,20 @@
       </div>
       <div class="row">
 
-        <div class="col-sm-6">
-          <div id="sunburst-options">
+        <div class="col-md-6 align-self-center">
+          <div id="sunburst-options ">
             <div class="btn-group">
               <button id="sunburst-eu-button" type="button" class="btn btn-outline-secondary" onclick="sunburstChangeLocation('EU')">EU</button>
               <button id="sunburst-it-button" type="button" class="btn btn-secondary" onclick="sunburstChangeLocation('IT')">Italy</button>
             </div>
           </div>
-          <svg id="sunburst" class="mx-auto">
+          <svg id="sunburst">
             <g></g>
           </svg>
           
         </div>
-        <div class="col-sm-6">
-          <svg id="bracket-bar-chart" class="mx-auto">
+        <div class="col-md-6 align-self-center">
+          <svg id="bracket-bar-chart" viewbox="0 0 700 600" preserveAspectRatio="xMidYMid">
           </svg>
         </div>
       </div>
