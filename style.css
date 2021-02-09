@@ -1,12 +1,14 @@
-#map-col{
+/* #map-col{
     background-color: #f8f8f8;
-}
+} */
 
 .countries {
     stroke: #f7f7f7;
     fill: #d9d9d9;
 }
-
+#map-svg{
+    margin-right: 50px;
+}
 #year-bar-chart{
     width: 500px;
     height: 500px;
@@ -16,7 +18,8 @@
     text-align: center;
 }
 .country-active{
-    fill:lightblue;
+    stroke:rgb(31, 30, 30);
+    
 }
 
 #selected-country-button{

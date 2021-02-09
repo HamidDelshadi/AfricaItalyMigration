@@ -2,6 +2,7 @@ var DataContext = {
   codes:{}, 
   selectedYearPlot:"Africa",
   selectedCountry:"", 
+  selectedCountryISO:"",
   selectedCountryPlot:"requests", 
   selectedBracketPlot:"requests", 
   selectedSunburst: "IT",
@@ -105,31 +106,83 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .call(legend);
 }
 /////////////////////////////////////////
+function createPattern(defs, fill) {
+  const pattern = defs
+    .append("pattern")
+    .attr("id", `${fill.substr(1)}-pattern`)
+    .attr("height", 10)
+    .attr("width", 10)
+    .attr("patternTransform","rotate(-45)")
+    .attr("patternUnits","userSpaceOnUse")
+    //.attr("patternContentUnits","")
+    ;
+
+  pattern
+    .append("rect")
+    .attr("height", "100%")
+    .attr("width", "100%")
+    .attr("fill", fill);
+    //patternUnits="userSpaceOnUse" width="1.0770936523746153" height="1.0770936523746153" patternTransform="rotate(-45)"
+  pattern
+    .append("rect")
+    .attr("x", 5)
+    .attr("y", 0)
+    .attr("height", "100%")
+    .attr("width", "2px")
+    .attr("fill", "white");
+}
+function createPatterns(svg, colors){
+  Object.values(colors).forEach(color => {
+    createPattern(svg, color);
+  });
+}
+
+
+/////////////////////////////////////////
 function drawMap(){
+  svg_id ="#map-svg";
   mapData = DataContext.mapData;
+
+  var svgBounds = d3.select("#map-svg").node().getBoundingClientRect();
+
+  var height = svgBounds.height;
+  var width = svgBounds.width;
+
   const zoom = d3.zoom()
       .scaleExtent([1, 8])
       .on("zoom", zoomed);
+  colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
   
-  var cScale = d3.scaleLinear()
-    .domain([0,d3.max(DataContext.ds, d => d.GDP)])
-    .range((["#b3d9ef", "#204a73"]));
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
   africaFeatures = mapData.features;
   console.log(africaFeatures);
-  var map_svg = d3.select("#map-svg g")
-    .selectAll("path")
+  const svg = d3.select(svg_id);
+  createPatterns(svg, colors);
+
+  const g = svg.append("g");
+
+  g.selectAll("path")
         .data(africaFeatures)
         .enter()
         .append("path")
         .attr("d", path) 
         .classed("countries", true)
         .attr("id", d=>d.properties.iso_a3)
-        .style("fill", d=>
+        .attr("country", d=> DataContext.codes[d.properties.iso_a3])
+        .style("fill", d=> 
         {
           try{
-            return cScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].GDP)
+            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].bracket]
+          }
+          catch(ex){
+            return "#d9d9d9";
+          }
+        })
+        .attr("originalcolor", d=> 
+        {
+          try{
+            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].bracket]
           }
           catch(ex){
             return "#d9d9d9";
@@ -139,24 +192,55 @@ function drawMap(){
         .on("mouseenter", countryMouseEnter)
         .on("mousemove", countryMouseMove)
         .on("mouseleave", countryMouseLeave);
-  d3.select("#map-svg g").call(zoom);
-}
+  g.call(zoom);
 
-function deselectAllCountries(){
-  d3.select("#map-svg g").selectAll("path").classed("country-active", false);
-}
+  legend = svg => {
+    const g = svg
+        .attr("transform", `translate(${width},40)`)
+        .attr("text-anchor", "end")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+      .selectAll("g")
+      .data(DataContext.bracket.map(a=>a.bracket))
+      .join("g")
+        .attr("transform", (d, i) => `translate(0,${10 + i * 20})`);
+  
+    g.append("rect")
+        .attr("x", -19)
+        .attr("width", 19)
+        .attr("height", 19)
+        .attr("fill", d=>colors[d.toLowerCase()]);
+  
+    g.append("text")
+        .attr("x", -24)
+        .attr("y", 9.5)
+        .attr("dy", "0.35em")
+        .text(d => d+" income");
+  }
+svg.append("g")
+  .call(legend);
 
+}
 
 function countryMouseClick(evnt, datum){
-  deselectAllCountries();
-  const e = d3.select("#map-svg g").selectAll("path").nodes();
-  const index = e.indexOf(this);
-  d3.select(this).classed("country-active",true);
 
-  var country = DataContext.codes[datum.properties.iso_a3];
-  DataContext.selectedCountry=country;
+  if(DataContext.selectedCountryISO)
+  {
+    const oldCountry = d3.select("#"+DataContext.selectedCountryISO);
+    c2 = oldCountry.attr("originalcolor");
+    oldCountry.style("fill", c2);
+  }
+
+  const newCountry = d3.select("#"+datum.properties.iso_a3);
+  c1 = newCountry.attr("originalcolor");
+  newCountry.style("fill",`url("${c1}-pattern")`)
+
+  
+  DataContext.selectedCountry=DataContext.codes[datum.properties.iso_a3];
+  DataContext.selectedCountryISO= datum.properties.iso_a3;
+
   showTotal(false);
-  drawYearBarChart(country);
+  drawYearBarChart(DataContext.selectedCountry);
 }
 
 function zoomed(event) {
@@ -167,7 +251,30 @@ function zoomed(event) {
 }
 function countryMouseEnter(ent, datum){
   var tooltip = d3.select(".tooltip").style("opacity", 1);
-  tooltip.select("#tooltip-country-name").text(DataContext.codes[datum.properties.iso_a3]);
+  var country = DataContext.codes[datum.properties.iso_a3];
+  var row = DataContext.ds[DataContext.ds.findIndex(item=>item.country == country)];
+
+  tooltip.select("#tooltip-country-name").text(country);
+  if(row)
+  {
+    tooltip.select("#tooltip-population").text("population: " + row.population);
+    tooltip.select("#tooltip-GDP").text("GDP: "+ row.GDP);
+    tooltip.select("#tooltip-req-EU").text(row.EU);
+    tooltip.select("#tooltip-req-normal-EU").text(row.Normal_EU);
+    tooltip.select("#tooltip-req-IT").text(row.IT);
+    tooltip.select("#tooltip-req-normal-IT").text(row.Normal_IT);
+    tooltip.select("#tooltip-bracket-name").text(row.bracket+" income");
+  }
+  else{
+    tooltip.select("#tooltip-population").text("population: NA");
+    tooltip.select("#tooltip-GDP").text("GDP: "+ "NA");
+    tooltip.select("#tooltip-req-EU").text("NA");
+    tooltip.select("#tooltip-req-normal-EU").text("NA");
+    tooltip.select("#tooltip-req-IT").text("NA");
+    tooltip.select("#tooltip-req-normal-IT").text("NA");
+    tooltip.select("#tooltip-bracket-name").text("NA");
+  }
+
 }
 function countryMouseMove(evnt, datum){
   tooltip = d3.select(".tooltip");
