@@ -84,7 +84,10 @@
             <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeCountries()">
             <label class="custom-control-label" for="normalize-country-switch">Normalize by population (in 10,000 people)</label>
           </div>
-          <svg id="country-bar-chart" viewbox="0 0 1500 700" preserveAspectRatio="xMidYMid">
+          <svg id="country-bar-chart-horizontal" class="d-none d-md-block"  viewbox="0 0 1500 700" preserveAspectRatio="xMidYMid">
+          </svg>
+
+          <svg id="country-bar-chart-vertical" class="d-md-none" viewbox="0 0 700 1000" preserveAspectRatio="xMidYMid">
           </svg>
 
         </div>
