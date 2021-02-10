@@ -56,12 +56,11 @@ function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   
   yAxis = g => g
   .attr("transform", `translate(${margin.left},0)`)
-    
     .call(d3.axisLeft(y0).tickSizeOuter(0))
 
 
   xAxis = g => g
-    .attr("transform", `translate(${margin.left}, ${height - margin.bottom})`)    
+    .attr("transform", `translate(${margin.left}, ${height - margin.bottom})`)
     .call(d3.axisBottom(x).ticks(null, "s"))
     .call(g => g.select(".tick:last-of-type text").clone()
     .attr("x", 3)
@@ -106,7 +105,9 @@ function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   svg.append("g")
       .call(legend);
 }
-
+function initSVGs(svgIds){
+  svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
+}
 /////////////////////////////////////////////
 function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   
@@ -140,8 +141,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
 
   const t = d3.transition().duration(500);
 
-  var svg = d3.select(svgId);
-  svg.selectAll("g").data(data).join("g")
+  d3.select(svgId+" > g:nth-child(1)").selectAll("g").data(data).join("g")
     .attr("transform", d => `translate(${x0(d[groupKey])},0)`)
     .selectAll("rect")
     .data(d=>keys.map(key => ({key, value: d[key]})))
@@ -157,20 +157,21 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
 
   yAxis = g => g
     .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y).ticks(null, "s"))
-    .call(g => g.select(".tick:last-of-type text").clone()
-        .attr("x", 3)
-        .attr("text-anchor", "start")
-        .text(data.y));
+    .transition(t)
+    .call(d3.axisLeft(y));//.ticks(null, "s"))
+    // .call(g => g.select(".tick:last-of-type text").clone()
+    //     .attr("x", 3)
+    //     .attr("text-anchor", "start")
+    //     .text(data.y));
     
-  svg.append("g")
+  d3.select(svgId+" > g:nth-child(2)")
       .call(xAxis).selectAll("text")
       .attr("dx", "-1em").attr("dy", "-0.2em")
       .attr("transform", "rotate(-65)")
       .style("font-size", "1.2em")
       .attr("text-anchor", "end")
       
-  svg.append("g")
+  d3.select(svgId+" > g:nth-child(3)")
       .call(yAxis);
 
   legend = svg => {
@@ -196,7 +197,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
             .attr("dy", "0.35em")
             .text(d => d);
       }
-  svg.append("g")
+  d3.select(svgId+" > g:nth-child(4)")
       .call(legend);
 }
 /////////////////////////////////////////
@@ -495,13 +496,26 @@ function drawSunburst(data){
   const g = svg.select("g")
       .attr("transform", `translate(${width / 2},${width / 2})`);
   g.selectAll("g").data([0,0]).join("g")
+
+  styler = p=>p.attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
+    .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
+    .attr("d", d => arc(d.current));
+
   const path = g.select("g:nth-child(1)")
     .selectAll("path")
     .data(root.descendants().slice(1))
-    .join("path")
-      .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
-      .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
-      .attr("d", d => arc(d.current));
+    .join(
+      enter =>styler(enter.append("path")),
+      //update=>update.call(u=>styler(u)),
+        update => update.call(u=>styler(u.transition().duration(750).attrTween("d", arcTween))),
+      //  update => update.call(u=>styler(u.transition().duration(750)
+      //   .tween("data", d => {
+      //       const i = d3.interpolate(d.current, d.target);
+      //       return t => d.current = i(t);
+      //   }).attrTween("d", d => () => arc(d.current)))),
+      exit=>exit.remove()
+    );
+  //path.call(u => u.transition().duration(750).attrTween("d", arcTween));
 
   path.filter(d => d.children)
       .style("cursor", "pointer")
@@ -575,7 +589,13 @@ function drawSunburst(data){
     const y = (d.y0 + d.y1) / 2 * radius;
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
-  
+  function arcTween(a) {
+    var i = d3.interpolate(this.current, a);
+    this.current = i(0);
+    return function(t) {
+      return arc(i(t));
+    };
+  }
 }
 
 /////////////////////////////////////
@@ -585,33 +605,34 @@ function normalizeBracket(){
 }
 
 function drawBracketCharts(plotType="requests"){
+  console.log(DataContext);
   d3.select("#bracket-chart-nav")
-  .selectAll("button")
-  .classed("active", false);
-d3.select("#bracket-nav-"+plotType).classed("active", true);
+    .selectAll("button")
+    .classed("active", false);
+  d3.select("#bracket-nav-"+plotType).classed("active", true);
 
-DataContext.selectedBracketPlot=plotType;
+  DataContext.selectedBracketPlot=plotType;
 
-if(plotType=="requests")
-{
-  d3.selectAll("#sunburst-options").style("visibility", "visible")
-  var keys = ["EU", "IT"];
-}
-else
-{
-  d3.selectAll("#sunburst-options").style("visibility", "hidden")
-  var keys= [plotType]
-}
+  if(plotType=="requests")
+  {
+    d3.selectAll("#sunburst-options").style("visibility", "visible")
+    var keys = ["EU", "IT"];
+  }
+  else
+  {
+    d3.selectAll("#sunburst-options").style("visibility", "hidden")
+    var keys= [plotType]
+  }
 
-  
-if(plotType=="requests" || plotType=="residents")
-{
-  d3.select("#normalize-bracket-switch").attr("disabled", null);
-  if(DataContext.normalizeBrackets)
-    keys = keys.map(d=> "Normal_"+d);
-}
-else
-  d3.select("#normalize-bracket-switch").attr("disabled", "disabled");
+    
+  if(plotType=="requests" || plotType=="residents")
+  {
+    d3.select("#normalize-bracket-switch").attr("disabled", null);
+    if(DataContext.normalizeBrackets)
+      keys = keys.map(d=> "Normal_"+d);
+  }
+  else
+    d3.select("#normalize-bracket-switch").attr("disabled", "disabled");
 
 
   var margin = ({top: 50, right: 50, bottom: 80, left: 80})
@@ -720,6 +741,7 @@ function loadData(){
         d.IT = +d.IT;
         d.EU = +d.EU;
         d.residents = +d.residents;
+        d.population = +d.population;
         d.Normal_IT = +d.Normal_IT;
         d.Normal_EU = +d.Normal_EU;
         d.Normal_residents = +d.Normal_residents;
@@ -734,9 +756,6 @@ function loadData(){
     drawBracketCharts();
     drawMap();
   });//.catch( err =>console.log(err));
-  
-
-
   
 }
 
@@ -763,5 +782,6 @@ function changeToHierarchy(raw,keys,leafKeys){
 }
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
+    initSVGs(["#year-bar-chart","#country-bar-chart-horizontal","#bracket-bar-chart"])
     loadData();
   });
