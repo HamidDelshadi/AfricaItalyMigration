@@ -11,6 +11,9 @@ var DataContext = {
   normalizeYears:false,
 };
 /////////////////////////////////////////////
+function showUserMessage(msg){
+  iqwerty.toast.toast(msg);
+}
 function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   
   const {xv, yv, width, height} = d3.select(svgId).node().viewBox.baseVal;
@@ -329,6 +332,10 @@ svg.append("g")
 }
 
 function countryMouseClick(evnt, datum){
+  if(!DataContext.ds.some(d=> d.country == getCountryName(datum)))
+  {
+    showUserMessage(`There is no data available about ${getCountryName(datum)}`);return;
+  }
 
   if(DataContext.selectedCountryISO)
   {
