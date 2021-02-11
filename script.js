@@ -129,7 +129,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .domain([0, d3.max(data, d => d3.max(keys, key => d[key]))]).nice()
       .rangeRound([height - margin.bottom, margin.top])
 
-  color = d3.scaleOrdinal()
+  color = d3.scaleOrdinal().domain(keys)
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
   bar_styler = (bar)  => {
     return bar.attr("x", d => x1(d.key))
@@ -185,13 +185,13 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
           .join("g")
             .attr("transform", (d, i) => `translate(0,${10 + i * 20})`);
       
-        g.append("rect")
+        g.selectAll("rect").data(d=>[d]).join("rect")
             .attr("x", -19)
             .attr("width", 19)
             .attr("height", 19)
             .attr("fill", color);
       
-        g.append("text")
+            g.selectAll("text").data(d=>[d]).join("text")
             .attr("x", -24)
             .attr("y", 9.5)
             .attr("dy", "0.35em")
@@ -496,26 +496,29 @@ function drawSunburst(data){
   const g = svg.select("g")
       .attr("transform", `translate(${width / 2},${width / 2})`);
   g.selectAll("g").data([0,0]).join("g")
-
-  styler = p=>p.attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
+  styler = a => a
+    .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
     .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
-    .attr("d", d => arc(d.current));
+    
+  const t1 = d3.transition().duration(750);
 
   const path = g.select("g:nth-child(1)")
     .selectAll("path")
     .data(root.descendants().slice(1))
     .join(
-      enter =>styler(enter.append("path")),
-      //update=>update.call(u=>styler(u)),
-        update => update.call(u=>styler(u.transition().duration(750).attrTween("d", arcTween))),
-      //  update => update.call(u=>styler(u.transition().duration(750)
-      //   .tween("data", d => {
-      //       const i = d3.interpolate(d.current, d.target);
-      //       return t => d.current = i(t);
-      //   }).attrTween("d", d => () => arc(d.current)))),
-      exit=>exit.remove()
-    );
-  //path.call(u => u.transition().duration(750).attrTween("d", arcTween));
+      enter => styler(enter.append("path")
+        .attr("x0", d=>d.x0)
+        .attr("x1",d=>d.x1)
+        .attr("d", d => arc(d.current))),
+
+      update => update.call(u=>styler(u)
+        .transition(t1)
+        .attrTween("d", arcTweenUpdate).on("end", function(d){d3.select(this).attr("x0",d.x0).attr("x1", d.x1);})
+        ),
+      exit => exit.remove()
+    )
+
+    
 
   path.filter(d => d.children)
       .style("cursor", "pointer")
@@ -537,7 +540,7 @@ function drawSunburst(data){
       .attr("font-size", "1.4em")
       .attr("fill-opacity", d => +labelVisible(d.current))
       .attr("transform", d => labelTransform(d.current))
-      .text(d => d.data.name);
+      .text(d => d.data.name.substr(0,13));
 
     const parent = g.selectAll("circle").data([0]).join("circle")
       .datum(root)
@@ -556,8 +559,7 @@ function drawSunburst(data){
       y1: Math.max(0, d.y1 - p.depth)
     });
 
-    const t = g.transition().duration(750);
-
+    const t = d3.transition().duration(750);
     path.transition(t)
         .tween("data", d => {
           const i = d3.interpolate(d.current, d.target);
@@ -589,13 +591,20 @@ function drawSunburst(data){
     const y = (d.y0 + d.y1) / 2 * radius;
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
-  function arcTween(a) {
-    var i = d3.interpolate(this.current, a);
-    this.current = i(0);
+
+  function arcTweenUpdate(a) {
+    element = d3.select(this)
+    var x0 = element.attr("x0");
+    var x1 = element.attr("x1");
+
+    var i = d3.interpolate({x0: x0, x1: x1}, a);
+    var flag = false;
     return function(t) {
-      return arc(i(t));
+      var b = i(t);
+      return arc(b);
     };
   }
+  
 }
 
 /////////////////////////////////////
@@ -605,7 +614,6 @@ function normalizeBracket(){
 }
 
 function drawBracketCharts(plotType="requests"){
-  console.log(DataContext);
   d3.select("#bracket-chart-nav")
     .selectAll("button")
     .classed("active", false);
@@ -653,6 +661,8 @@ function drawBracketCharts(plotType="requests"){
   }
   drawSunburst(hierarchyData);
 }
+
+
 function sunburstChangeLocation(location){
   var otherLocation = "eu";
   if(location=="EU")
