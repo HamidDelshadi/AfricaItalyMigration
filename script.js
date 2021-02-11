@@ -136,8 +136,15 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .attr("y", d => y(d.value))
       .attr("width", x1.bandwidth())
       .attr("height", d => y(0) - y(d.value))
+      // .attr("data-toggle", "tooltip")
+      // .attr("data-placement", "top")
+      // .attr("title", d=>d.value)
       .attr("fill", d => color(d.key));
   }
+  addTitle = rect => rect.selectAll("title")
+  .data(d=>[d])
+  .join("title")
+  .text(d=>d.value);
 
   const t = d3.transition().duration(500);
 
@@ -146,8 +153,8 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
     .selectAll("rect")
     .data(d=>keys.map(key => ({key, value: d[key]})))
     .join(
-      enter => bar_styler(enter.append("rect")),
-      update => update.call(u => bar_styler(u.transition(t))),
+      enter => addTitle(bar_styler(enter.append("rect"))),
+      update => addTitle(update.call(u => bar_styler(u.transition(t)))),
       exit => exit.remove()
     );
   
