@@ -460,7 +460,7 @@ function drawCountryBarChart(plotType="requests"){
   drawVerticalGroupBarChart(DataContext.ds, "#country-bar-chart-vertical", vmargin, "country", keys)
 }
 //sunburst////////////////////////
-function drawSunburst(data){
+function drawSunburst(data,showNameInLeaf){
   var svgId = "#sunburst";
   var svgBounds = d3.select(svgId).node().getBoundingClientRect();
   var width = svgBounds.width;
@@ -540,7 +540,12 @@ function drawSunburst(data){
       .attr("font-size", "1.4em")
       .attr("fill-opacity", d => +labelVisible(d.current))
       .attr("transform", d => labelTransform(d.current))
-      .text(d => d.data.name.substr(0,13));
+      .text(d => {
+        if((!showNameInLeaf) &&(d.depth>=3))
+          return d.data.value;
+        else
+          return d.data.name.substr(0,13);
+      });
 
     const parent = g.selectAll("circle").data([0]).join("circle")
       .datum(root)
@@ -620,9 +625,10 @@ function drawBracketCharts(plotType="requests"){
   d3.select("#bracket-nav-"+plotType).classed("active", true);
 
   DataContext.selectedBracketPlot=plotType;
-
+  var isRequest = false
   if(plotType=="requests")
   {
+    isRequest = true;
     d3.selectAll("#sunburst-options").style("visibility", "visible")
     var keys = ["EU", "IT"];
   }
@@ -652,14 +658,14 @@ function drawBracketCharts(plotType="requests"){
     if(DataContext.normalizeBrackets)
       key = "Normal_"+key;
     var hierarchyData = DataContext[key];
-    drawSunburst(hierarchyData);
+    drawSunburst(hierarchyData, isRequest);
   }
   else
   {
     var hierarchyData = DataContext[keys[0]+"Hierarchy"]
-    drawSunburst(DataContext[keys[0]+"Hierarchy"]);
+    drawSunburst(DataContext[keys[0]+"Hierarchy"], isRequest);
   }
-  drawSunburst(hierarchyData);
+  drawSunburst(hierarchyData, isRequest);
 }
 
 
