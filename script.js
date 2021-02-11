@@ -230,22 +230,30 @@ function createPatterns(svg, colors){
 }
 
 /////////////////////////////////////////
+function getCountryName(d){
+  return DataContext.codes[getISO(d)];
+  //return d.properties.geounit;
+}
+function getISO(d){
+  return d.properties.iso_a3;
+}
 function drawMap(){
   svg_id ="#map-svg";
   mapData = DataContext.mapData;
 
   var svgBounds = d3.select("#map-svg").node().getBoundingClientRect();
 
-  var height = 600;//svgBounds.height;
-  var width = 700;//svgBounds.width;
+  var height = 600;
+  var width = 700;
 
   const zoom = d3.zoom()
-      .scaleExtent([1, 8])
+      .scaleExtent([4, 8])
       .on("zoom", zoomed);
   colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
   
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
+  //africaFeatures = topojson.feature(mapData, mapData.objects.continent_Africa_subunits).features;
   africaFeatures = mapData.features;
   console.log(africaFeatures);
   const svg = d3.select(svg_id);
@@ -259,12 +267,12 @@ function drawMap(){
         .append("path")
         .attr("d", path) 
         .classed("countries", true)
-        .attr("id", d=>d.properties.iso_a3)
-        .attr("country", d=> DataContext.codes[d.properties.iso_a3])
+        .attr("id", d=>getISO(d))
+        .attr("country", d=> getCountryName(d))
         .style("fill", d=> 
         {
           try{
-            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].bracket]
+            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
           }
           catch(ex){
             return "#d9d9d9";
@@ -273,7 +281,7 @@ function drawMap(){
         .attr("originalcolor", d=> 
         {
           try{
-            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == DataContext.codes[d.properties.iso_a3])].bracket]
+            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
           }
           catch(ex){
             return "#d9d9d9";
@@ -322,13 +330,13 @@ function countryMouseClick(evnt, datum){
     oldCountry.style("fill", c2);
   }
 
-  const newCountry = d3.select("#"+datum.properties.iso_a3);
+  const newCountry = d3.select("#"+getISO(datum));
   c1 = newCountry.attr("originalcolor");
   newCountry.style("fill",`url("${c1}-pattern")`)
 
   
-  DataContext.selectedCountry=DataContext.codes[datum.properties.iso_a3];
-  DataContext.selectedCountryISO= datum.properties.iso_a3;
+  DataContext.selectedCountry=getCountryName(datum);
+  DataContext.selectedCountryISO= getISO(datum);
 
   showTotal(false);
   drawYearBarChart(DataContext.selectedCountry);
@@ -342,7 +350,7 @@ function zoomed(event) {
 }
 function countryMouseEnter(ent, datum){
   var tooltip = d3.select(".tooltip").style("opacity", 1);
-  var country = DataContext.codes[datum.properties.iso_a3];
+  var country = getCountryName(datum)
   var row = DataContext.ds[DataContext.ds.findIndex(item=>item.country == country)];
 
   tooltip.select("#tooltip-country-name").text(country);
@@ -765,6 +773,7 @@ function loadData(){
       DataContext.bracket = csv;
     }),
     d3.json("data/custom.geo.json").then(function(mapData){
+      console.log(mapData);
       DataContext.mapData =mapData;
     })
   ]).then(()=>{
