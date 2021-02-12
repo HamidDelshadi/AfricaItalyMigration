@@ -356,7 +356,7 @@ function loadListOfCountries(){
 /*    years charts events    */
 function changeCountry(country)
 {
-  iso = Object.keys(DataContext.codes).find(key => DataContext.codes[key] == country);
+  iso = CountryNameToISO(country);
   d3.selectAll("#select-country-options option").attr("selected", null);
   d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
 
@@ -444,7 +444,6 @@ function normalizeYears()
 function drawYearBarChart(country="Africa")
 {
   DataContext.selectedYearPlot = country;
-  d3.select("#selected-country-label").text(country);
   var margin = ({top: 50, right: 50, bottom: 60, left: 80})
   var pre=""
   if(DataContext.normalizeYears)
