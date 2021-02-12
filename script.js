@@ -258,8 +258,11 @@ function drawMap(){
 
   var height = 600;
   var width = 700;
-
+  var colorScale = d3.scaleThreshold()
   colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
+  colorScale.domain(Object.keys(colors))
+    .range(Object.values(colors));
+  
   ranges = {"low":"0-1000", "medium low":"1000-4000", "medium high":"4000-12000", "high":"12000+"}
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
