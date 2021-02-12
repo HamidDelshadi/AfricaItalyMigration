@@ -24,7 +24,6 @@ function createPattern(defs, fill) {
     .attr("width", 10)
     .attr("patternTransform","rotate(-45)")
     .attr("patternUnits","userSpaceOnUse")    ;
-
   pattern
     .append("rect")
     .attr("height", "100%")
@@ -54,6 +53,13 @@ function getISO(d){
   return d.properties.iso_a3;
 }
 
+function CountryNameToISO(country)
+{
+  if(country!="Africa")
+    return Object.keys(DataContext.codes).find(key => DataContext.codes[key] == country);
+  else
+    return country;
+}
 /*     draw Bar-charts   */
 function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   
@@ -335,6 +341,7 @@ svg.append("g")
 
 function loadListOfCountries(){
   countries = DataContext.ds.map(a=>a.country)
+  countries.push("Africa")
   countries.sort();
   d3.select("#select-country-options")
     .selectAll("option")
@@ -342,14 +349,8 @@ function loadListOfCountries(){
     .join("option")
     .attr("value", d=>d)
     .text(d=>d)
-    .attr("id", d=> "option-"+Object.keys(DataContext.codes).find(key => DataContext.codes[key] == d))
-    ;
-  d3.select("#select-country-options")
-    .append("option")
-    .attr("selected", true)
-    .attr("disabled", true)
-    .attr("value", "Africa")
-    .text("Select a Country");
+    .attr("id", d=>"option-"+CountryNameToISO(d))
+    .attr("selected", d=>(d=="Africa")?true:null);
 }
 
 /*    years charts events    */
@@ -359,10 +360,10 @@ function changeCountry(country)
   d3.selectAll("#select-country-options option").attr("selected", null);
   d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
 
-    if(!DataContext.ds.some(d=> d.country == country))
-    {
-      showUserMessage(`There is no data available about ${country}`);return;
-    }
+  if(country!="Africa" && !DataContext.ds.some(d=> d.country == country))
+  {
+    showUserMessage(`There is no data available about ${country}`);return;
+  }
   try{
     if(DataContext.selectedCountryISO)
     {
@@ -387,7 +388,6 @@ function changeCountry(country)
   
     DataContext.selectedCountry=country;
     DataContext.selectedCountryISO= iso;
-    showTotal(false);
     drawYearBarChart(DataContext.selectedCountry);
 }
 
@@ -445,8 +445,6 @@ function drawYearBarChart(country="Africa")
 {
   DataContext.selectedYearPlot = country;
   d3.select("#selected-country-label").text(country);
-  if(country!="Africa")
-    d3.select("#selected-country-button").text(country);
   var margin = ({top: 50, right: 50, bottom: 60, left: 80})
   var pre=""
   if(DataContext.normalizeYears)
@@ -470,19 +468,19 @@ function drawYearBarChart(country="Africa")
   drawGroupBarChart(data,"#year-bar-chart", margin,"year",["EU","IT"])
 }
 
-function showTotal(flag){
-    d3.select("#selected-country-button").classed("active", !flag);
-    d3.select("#africa-button").classed("active", flag);
-    if(flag)
-    {
-      drawYearBarChart("Africa");
-    }
-    else
-    {
-      if(DataContext.selectedCountry)
-        drawYearBarChart(DataContext.selectedCountry);
-    }
-}
+// function showTotal(flag){
+//     d3.select("#select-country-options").classed("active", !flag);
+//     d3.select("#africa-button").classed("active", flag);
+//     if(flag)
+//     {
+//       drawYearBarChart("Africa");
+//     }
+//     else
+//     {
+//       if(DataContext.selectedCountry)
+//         drawYearBarChart(DataContext.selectedCountry);
+//     }
+// }
 
 /*      countries chart events      */
 function normalizeCountries()

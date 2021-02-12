@@ -2,6 +2,12 @@
     background-color: #f8f8f8;
 } */
 
+.nav-link{
+    background-color: transparent;
+}
+.nav-link:focus{
+    outline: none;
+}
 .countries {
     stroke: #f7f7f7;
     fill: #d9d9d9;
