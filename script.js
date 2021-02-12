@@ -1,5 +1,3 @@
-
-
 var DataContext = {
   codes:{}, 
   selectedYearPlot:"Africa",
@@ -12,10 +10,51 @@ var DataContext = {
   normalizeBrackets:false,
   normalizeYears:false,
 };
-/////////////////////////////////////////////
+
+/*    utilities    */
 function showUserMessage(msg){
   iqwerty.toast.toast(msg);
 }
+
+function createPattern(defs, fill) {
+  const pattern = defs
+    .append("pattern")
+    .attr("id", `${fill.substr(1)}-pattern`)
+    .attr("height", 10)
+    .attr("width", 10)
+    .attr("patternTransform","rotate(-45)")
+    .attr("patternUnits","userSpaceOnUse")    ;
+
+  pattern
+    .append("rect")
+    .attr("height", "100%")
+    .attr("width", "100%")
+    .attr("fill", fill);
+  pattern
+    .append("rect")
+    .attr("x", 5)
+    .attr("y", 0)
+    .attr("height", "100%")
+    .attr("width", "2px")
+    .attr("fill", "white");
+}
+
+function createPatterns(svg, colors){
+  Object.values(colors).forEach(color => {
+    createPattern(svg, color);
+  });
+}
+
+function getCountryName(d){
+  return DataContext.codes[getISO(d)];
+  //return d.properties.geounit;
+}
+
+function getISO(d){
+  return d.properties.iso_a3;
+}
+
+/*     draw Bar-charts   */
 function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   
   const {xv, yv, width, height} = d3.select(svgId).node().viewBox.baseVal;
@@ -110,10 +149,7 @@ function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
   svg.append("g")
       .call(legend);
 }
-function initSVGs(svgIds){
-  svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
-}
-/////////////////////////////////////////////
+
 function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   
   const {xv, yv, width, height} = d3.select(svgId).node().viewBox.baseVal;
@@ -212,103 +248,8 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   d3.select(svgId+" > g:nth-child(4)")
       .call(legend);
 }
-/////////////////////////////////////////
-function createPattern(defs, fill) {
-  const pattern = defs
-    .append("pattern")
-    .attr("id", `${fill.substr(1)}-pattern`)
-    .attr("height", 10)
-    .attr("width", 10)
-    .attr("patternTransform","rotate(-45)")
-    .attr("patternUnits","userSpaceOnUse")    ;
 
-  pattern
-    .append("rect")
-    .attr("height", "100%")
-    .attr("width", "100%")
-    .attr("fill", fill);
-  pattern
-    .append("rect")
-    .attr("x", 5)
-    .attr("y", 0)
-    .attr("height", "100%")
-    .attr("width", "2px")
-    .attr("fill", "white");
-}
-function createPatterns(svg, colors){
-  Object.values(colors).forEach(color => {
-    createPattern(svg, color);
-  });
-}
-
-/////////////////////////////////////////
-function loadListOfCountries(){
-  countries = DataContext.ds.map(a=>a.country)
-  countries.sort();
-  d3.select("#select-country-options")
-    .selectAll("option")
-    .data(countries)
-    .join("option")
-    .attr("value", d=>d)
-    .text(d=>d)
-    .attr("id", d=> "option-"+Object.keys(DataContext.codes).find(key => DataContext.codes[key] == d))
-    ;
-  d3.select("#select-country-options")
-    .append("option")
-    .attr("selected", true)
-    .attr("disabled", true)
-    .attr("value", "Africa")
-    .text("Select a Country");
-}
-
-
-function changeCountry(country)
-{
-  iso = Object.keys(DataContext.codes).find(key => DataContext.codes[key] == country);
-  d3.selectAll("#select-country-options option").attr("selected", null);
-  d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
-
-
-
-    if(!DataContext.ds.some(d=> d.country == country))
-    {
-      showUserMessage(`There is no data available about ${country}`);return;
-    }
-  try{
-    if(DataContext.selectedCountryISO)
-    {
-      const oldCountry = d3.select("#"+DataContext.selectedCountryISO);
-      c2 = oldCountry.attr("originalcolor");
-      oldCountry.style("fill", c2);
-  }}
-  catch(err){
-      console.log("one of the small islands is selected");
-  }
-  try{
-    const newCountry = d3.select("#"+iso);
-    if(newCountry)
-    {
-      c1 = newCountry.attr("originalcolor");
-      newCountry.style("fill",`url("${c1}-pattern")`)
-    }
-  }catch(err){
-    console.log("one of the small islands is selected");
-  }
-  
-  
-    DataContext.selectedCountry=country;
-    DataContext.selectedCountryISO= iso;
-    showTotal(false);
-    drawYearBarChart(DataContext.selectedCountry);
-}
-
-function getCountryName(d){
-  return DataContext.codes[getISO(d)];
-  //return d.properties.geounit;
-}
-function getISO(d){
-  return d.properties.iso_a3;
-}
+/*     draw Map       */
 function drawMap(){
   svg_id ="#map-svg";
   mapData = DataContext.mapData;
@@ -389,15 +330,66 @@ svg.append("g")
 
 }
 
-function countryMouseClick(evnt, datum){
-  changeCountry(getCountryName(datum));
+function loadListOfCountries(){
+  countries = DataContext.ds.map(a=>a.country)
+  countries.sort();
+  d3.select("#select-country-options")
+    .selectAll("option")
+    .data(countries)
+    .join("option")
+    .attr("value", d=>d)
+    .text(d=>d)
+    .attr("id", d=> "option-"+Object.keys(DataContext.codes).find(key => DataContext.codes[key] == d))
+    ;
+  d3.select("#select-country-options")
+    .append("option")
+    .attr("selected", true)
+    .attr("disabled", true)
+    .attr("value", "Africa")
+    .text("Select a Country");
 }
 
-function zoomed(event) {
-  const {transform} = event;
-  g = d3.select("#map-svg g");
-  g.attr("transform", transform);
-  g.attr("stroke-width", 1 / transform.k);
+/*    years charts events    */
+function changeCountry(country)
+{
+  iso = Object.keys(DataContext.codes).find(key => DataContext.codes[key] == country);
+  d3.selectAll("#select-country-options option").attr("selected", null);
+  d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
+
+    if(!DataContext.ds.some(d=> d.country == country))
+    {
+      showUserMessage(`There is no data available about ${country}`);return;
+    }
+  try{
+    if(DataContext.selectedCountryISO)
+    {
+      const oldCountry = d3.select("#"+DataContext.selectedCountryISO);
+      c2 = oldCountry.attr("originalcolor");
+      oldCountry.style("fill", c2);
+  }}
+  catch(err){
+      console.log("one of the small islands is selected");
+  }
+  try{
+    const newCountry = d3.select("#"+iso);
+    if(newCountry)
+    {
+      c1 = newCountry.attr("originalcolor");
+      newCountry.style("fill",`url("${c1}-pattern")`)
+    }
+  }catch(err){
+    console.log("one of the small islands is selected");
+  }
+  
+  
+    DataContext.selectedCountry=country;
+    DataContext.selectedCountryISO= iso;
+    showTotal(false);
+    drawYearBarChart(DataContext.selectedCountry);
+}
+
+function countryMouseClick(evnt, datum){
+  changeCountry(getCountryName(datum));
 }
 
 function countryMouseEnter(ent, datum){
@@ -427,6 +419,7 @@ function countryMouseEnter(ent, datum){
   }
 
 }
+
 function countryMouseMove(evnt, datum){
   tooltip = d3.select("#tooltip-country");
   tooltip.style("transform", `translate(`
@@ -434,14 +427,17 @@ function countryMouseMove(evnt, datum){
       + `calc( 10% + ${evnt.pageY}px)`
       + `)`)
 }
+
 function countryMouseLeave() {
   d3.select("#tooltip-country").style("opacity", 0)
 }
+
 function normalizeYears()
 {
   DataContext.normalizeYears = !DataContext.normalizeYears;
   drawYearBarChart(DataContext.selectedYearPlot);
 }
+
 function drawYearBarChart(country="Africa")
 {
   DataContext.selectedYearPlot = country;
@@ -484,7 +480,8 @@ function showTotal(flag){
         drawYearBarChart(DataContext.selectedCountry);
     }
 }
-//country chart/////////////////////////////////////////////////////
+
+/*      countries chart events      */
 function normalizeCountries()
 {
   DataContext.normalizeCountries = !DataContext.normalizeCountries;
@@ -519,7 +516,8 @@ function drawCountryBarChart(plotType="requests"){
   drawGroupBarChart(DataContext.ds, "#country-bar-chart-horizontal", margin, "country", keys)
   drawVerticalGroupBarChart(DataContext.ds, "#country-bar-chart-vertical", vmargin, "country", keys)
 }
-//sunburst////////////////////////
+
+/*      bracket charts      */
 function drawSunburst(data,showNameInLeaf){
   var svgId = "#sunburst";
   var svgBounds = d3.select(svgId).node().getBoundingClientRect();
@@ -672,7 +670,6 @@ function drawSunburst(data,showNameInLeaf){
   
 }
 
-/////////////////////////////////////
 function normalizeBracket(){
   DataContext.normalizeBrackets = !DataContext.normalizeBrackets;
   drawBracketCharts(DataContext.selectedBracketPlot);
@@ -728,7 +725,6 @@ function drawBracketCharts(plotType="requests"){
   drawSunburst(hierarchyData, isRequest);
 }
 
-
 function sunburstChangeLocation(location){
   var otherLocation = "eu";
   if(location=="EU")
@@ -745,7 +741,12 @@ function sunburstChangeLocation(location){
   DataContext.selectedSunburst = location;
   drawBracketCharts(DataContext.selectedBracketPlot);
 }
-/////////////////////////////////////
+
+/*    Initiations    */
+function initSVGs(svgIds){
+  svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
+}
+
 function loadData(){
 
   Promise.all([d3.csv("data/allcodes.csv").
@@ -858,6 +859,7 @@ function changeToHierarchy(raw,keys,leafKeys){
   });
   return data;
 }
+
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
     initSVGs(["#year-bar-chart","#country-bar-chart-horizontal","#bracket-bar-chart"])
