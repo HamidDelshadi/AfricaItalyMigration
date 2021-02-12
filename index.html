@@ -33,7 +33,7 @@
           </ul>
         </div>
     </nav>
-    <div class="container-fluid">
+    <div class="container-fluid">      
       <div class="row">
         <div class="col-md-6 align-self-center" id="map-col">
           
@@ -42,23 +42,19 @@
         </div>
   
         <div class="col-md-6 year-diagram align-self-center">
-          <ul class="nav nav-tabs justify-content-center">
+          <ul class="nav nav-tabs justify-content-center year-nav">
             <li class="nav-item">
-              <button id="africa-button" class="nav-link active" onclick="showTotal(true)">Africa</a>
+              <button id="africa-button" class="nav-link active" onclick="showTotal(true)">Africa</button>
             </li>
             <li class="nav-item">
-              <button id="selected-country-button" class="nav-link" onclick="showTotal(false)">Select a Country</a>
+              <button id="selected-country-button" class="nav-link" onclick="showTotal(false)">Select a Country</button>
             </li>
           </ul>
           
           <svg id="year-bar-chart" viewbox="0 0 700 600" preserveAspectRatio="xMinYMin">
           </svg>
           <h5>Number of asylum requests from</h5>
-          <select class="form-control" id="dataset" onchange="chooseData(this.options[this.selectedIndex].value)">
-            <option selected disabled value="attendance">Attendance</option>
-            <option value="teams">Teams</option>
-            <option value="matches">Matches</option>
-            <option value="goals">Goals</option>
+          <select class="form-control" id="select-country-options" onchange="changeCountry(this.options[this.selectedIndex].value)">
           </select>
       
           <div class="custom-control custom-switch">
@@ -142,44 +138,44 @@
       </div>
     </div>
     
+    <div class="tooltip info-panel" id="tooltip-country">
+      <h6 class="info-country-name">Country</h6>
+      <p class="info-sub-title"><span class="info-population">Population:60000000</span>
+        <span class="info-GDP">GDP:897</span>
+      </p>
+      <table >
+        <colgroup>
+          <col class="col-name">
+          <col class="col-number">
+          <col class="col-normal">
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th>request</th>
+            <th>request/population</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>EU</td>
+            <td class="info-req-EU">1234488</td>
+            <td class="info-req-normal-EU">0.01</td>
+          </tr>
+          <tr>
+            <td>IT</td>
+            <td class="info-req-IT">143133</td>
+            <td class="info-req-normal-IT">0.001</td>
+          </tr>
+        </tbody>
+        
+      </table>
+      <p class="info-bracket">
+        <span class="info-bracket-name badge badge-pill badge-info">Medium Bracket</span>
+      </p>
+  </div>
 
 
-<div class="tooltip">
-    <h6 id="tooltip-country-name">Country</h6>
-    <p id="tooltip-sub-title"><span id="tooltip-population">Population:60000000</span>
-      <span id="tooltip-GDP">GDP:897</span>
-    </p>
-    <table >
-      <colgroup>
-        <col class="col-name">
-        <col class="col-number">
-        <col class="col-normal">
-      </colgroup>
-      <thead>
-        <tr>
-          <th></th>
-          <th>request</th>
-          <th>request/population</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>EU</td>
-          <td id="tooltip-req-EU">1234488</td>
-          <td id="tooltip-req-normal-EU">0.01</td>
-        </tr>
-        <tr>
-          <td>IT</td>
-          <td id="tooltip-req-IT">143133</td>
-          <td id="tooltip-req-normal-IT">0.001</td>
-        </tr>
-      </tbody>
-      
-    </table>
-    <p class="tooltip-bracket">
-      <span id="tooltip-bracket-name" class="badge badge-pill badge-info">Medium Bracket</span>
-    </p>
-</div>
 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

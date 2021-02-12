@@ -1,3 +1,5 @@
+
+
 var DataContext = {
   codes:{}, 
   selectedYearPlot:"Africa",
@@ -240,6 +242,66 @@ function createPatterns(svg, colors){
 }
 
 /////////////////////////////////////////
+function loadListOfCountries(){
+  countries = DataContext.ds.map(a=>a.country)
+  countries.sort();
+  d3.select("#select-country-options")
+    .selectAll("option")
+    .data(countries)
+    .join("option")
+    .attr("value", d=>d)
+    .text(d=>d)
+    .attr("id", d=> "option-"+Object.keys(DataContext.codes).find(key => DataContext.codes[key] == d))
+    ;
+  d3.select("#select-country-options")
+    .append("option")
+    .attr("selected", true)
+    .attr("disabled", true)
+    .attr("value", "Africa")
+    .text("Select a Country");
+}
+
+
+function changeCountry(country)
+{
+  iso = Object.keys(DataContext.codes).find(key => DataContext.codes[key] == country);
+  d3.selectAll("#select-country-options option").attr("selected", null);
+  d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
+
+
+
+    if(!DataContext.ds.some(d=> d.country == country))
+    {
+      showUserMessage(`There is no data available about ${country}`);return;
+    }
+  try{
+    if(DataContext.selectedCountryISO)
+    {
+      const oldCountry = d3.select("#"+DataContext.selectedCountryISO);
+      c2 = oldCountry.attr("originalcolor");
+      oldCountry.style("fill", c2);
+  }}
+  catch(err){
+      console.log("one of the small islands is selected");
+  }
+  try{
+    const newCountry = d3.select("#"+iso);
+    if(newCountry)
+    {
+      c1 = newCountry.attr("originalcolor");
+      newCountry.style("fill",`url("${c1}-pattern")`)
+    }
+  }catch(err){
+    console.log("one of the small islands is selected");
+  }
+  
+  
+    DataContext.selectedCountry=country;
+    DataContext.selectedCountryISO= iso;
+    showTotal(false);
+    drawYearBarChart(DataContext.selectedCountry);
+}
+
 function getCountryName(d){
   return DataContext.codes[getISO(d)];
   //return d.properties.geounit;
@@ -332,28 +394,7 @@ svg.append("g")
 }
 
 function countryMouseClick(evnt, datum){
-  if(!DataContext.ds.some(d=> d.country == getCountryName(datum)))
-  {
-    showUserMessage(`There is no data available about ${getCountryName(datum)}`);return;
-  }
-
-  if(DataContext.selectedCountryISO)
-  {
-    const oldCountry = d3.select("#"+DataContext.selectedCountryISO);
-    c2 = oldCountry.attr("originalcolor");
-    oldCountry.style("fill", c2);
-  }
-
-  const newCountry = d3.select("#"+getISO(datum));
-  c1 = newCountry.attr("originalcolor");
-  newCountry.style("fill",`url("${c1}-pattern")`)
-
-  
-  DataContext.selectedCountry=getCountryName(datum);
-  DataContext.selectedCountryISO= getISO(datum);
-
-  showTotal(false);
-  drawYearBarChart(DataContext.selectedCountry);
+  changeCountry(getCountryName(datum));
 }
 
 function zoomed(event) {
@@ -362,42 +403,43 @@ function zoomed(event) {
   g.attr("transform", transform);
   g.attr("stroke-width", 1 / transform.k);
 }
+
 function countryMouseEnter(ent, datum){
-  var tooltip = d3.select(".tooltip").style("opacity", 1);
+  d3.select("#tooltip-country").style("opacity", 1);
   var country = getCountryName(datum)
   var row = DataContext.ds[DataContext.ds.findIndex(item=>item.country == country)];
 
-  tooltip.select("#tooltip-country-name").text(country);
+  d3.selectAll(".info-country-name").text(country);
   if(row)
   {
-    tooltip.select("#tooltip-population").text("population: " + row.population);
-    tooltip.select("#tooltip-GDP").text("GDP: "+ row.GDP);
-    tooltip.select("#tooltip-req-EU").text(row.EU);
-    tooltip.select("#tooltip-req-normal-EU").text(row.Normal_EU);
-    tooltip.select("#tooltip-req-IT").text(row.IT);
-    tooltip.select("#tooltip-req-normal-IT").text(row.Normal_IT);
-    tooltip.select("#tooltip-bracket-name").text(row.bracket+" income");
+    d3.selectAll(".info-population").text("population: " + row.population);
+    d3.selectAll(".info-GDP").text("GDP: "+ row.GDP);
+    d3.selectAll(".info-req-EU").text(row.EU);
+    d3.selectAll(".info-req-normal-EU").text(row.Normal_EU);
+    d3.selectAll(".info-req-IT").text(row.IT);
+    d3.selectAll(".info-req-normal-IT").text(row.Normal_IT);
+    d3.selectAll(".info-bracket-name").text(row.bracket+" income");
   }
   else{
-    tooltip.select("#tooltip-population").text("population: NA");
-    tooltip.select("#tooltip-GDP").text("GDP: "+ "NA");
-    tooltip.select("#tooltip-req-EU").text("NA");
-    tooltip.select("#tooltip-req-normal-EU").text("NA");
-    tooltip.select("#tooltip-req-IT").text("NA");
-    tooltip.select("#tooltip-req-normal-IT").text("NA");
-    tooltip.select("#tooltip-bracket-name").text("NA");
+    d3.selectAll(".info-population").text("population: NA");
+    d3.selectAll(".info-GDP").text("GDP: "+ "NA");
+    d3.selectAll(".info-req-EU").text("NA");
+    d3.selectAll(".info-req-normal-EU").text("NA");
+    d3.selectAll(".info-req-IT").text("NA");
+    d3.selectAll(".info-req-normal-IT").text("NA");
+    d3.selectAll(".info-bracket-name").text("NA");
   }
 
 }
 function countryMouseMove(evnt, datum){
-  tooltip = d3.select(".tooltip");
+  tooltip = d3.select("#tooltip-country");
   tooltip.style("transform", `translate(`
       + `calc( -50% + ${evnt.pageX}px),`
       + `calc( 10% + ${evnt.pageY}px)`
       + `)`)
 }
 function countryMouseLeave() {
-  d3.select(".tooltip").style("opacity", 0)
+  d3.select("#tooltip-country").style("opacity", 0)
 }
 function normalizeYears()
 {
@@ -791,6 +833,7 @@ function loadData(){
       DataContext.mapData =mapData;
     })
   ]).then(()=>{
+    loadListOfCountries();
     drawYearBarChart();
     drawBracketCharts();
     drawMap();
