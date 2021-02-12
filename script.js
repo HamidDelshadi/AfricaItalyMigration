@@ -332,7 +332,7 @@ function drawMap(){
         .attr("x", -24)
         .attr("y", 9.5)
         .attr("dy", "0.35em")
-        .text(d => d+` income (GDP: ${ranges[d.toLowerCase()]})`);
+        .text(d => d+` income (PPP: ${ranges[d.toLowerCase()]})`);
   }
 svg.append("g")
   .call(legend);
@@ -404,7 +404,7 @@ function countryMouseEnter(ent, datum){
   if(row)
   {
     d3.selectAll(".info-population").text("population: " + row.population);
-    d3.selectAll(".info-GDP").text("GDP: "+ row.GDP);
+    d3.selectAll(".info-GDP").text("PPP: "+ row.GDP);
     d3.selectAll(".info-req-EU").text(row.EU);
     d3.selectAll(".info-req-normal-EU").text(row.Normal_EU);
     d3.selectAll(".info-req-IT").text(row.IT);
@@ -413,7 +413,7 @@ function countryMouseEnter(ent, datum){
   }
   else{
     d3.selectAll(".info-population").text("population: NA");
-    d3.selectAll(".info-GDP").text("GDP: "+ "NA");
+    d3.selectAll(".info-GDP").text("PPP: "+ "NA");
     d3.selectAll(".info-req-EU").text("NA");
     d3.selectAll(".info-req-normal-EU").text("NA");
     d3.selectAll(".info-req-IT").text("NA");
@@ -741,7 +741,18 @@ function sunburstChangeLocation(location){
   DataContext.selectedSunburst = location;
   drawBracketCharts(DataContext.selectedBracketPlot);
 }
-
+function CreateBracketInfo(data){
+  console.log(data)
+  d3.select("#bracket-info")
+    .selectAll("div")
+    .data(data)
+    .join("div")
+    .classed("info-card", true)
+    .selectAll("p")
+    .data(d=>[d.bracket+" income", d.range, "GDP per capita (PPP)"])
+    .join("p")
+    .text(d=>d);
+}
 /*    Initiations    */
 function initSVGs(svgIds){
   svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
@@ -824,8 +835,10 @@ function loadData(){
         d.Normal_residents = +d.Normal_residents;
       })
       DataContext.bracket = csv;
+      CreateBracketInfo(csv);
     }),
     d3.json("data/custom.geo.json").then(function(mapData){
+
       console.log(mapData);
       DataContext.mapData =mapData;
     })
