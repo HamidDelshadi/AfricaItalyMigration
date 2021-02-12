@@ -318,9 +318,6 @@ function drawMap(){
   var height = 600;
   var width = 700;
 
-  const zoom = d3.zoom()
-      .scaleExtent([4, 8])
-      .on("zoom", zoomed);
   colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
   
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
@@ -363,7 +360,6 @@ function drawMap(){
         .on("mouseenter", countryMouseEnter)
         .on("mousemove", countryMouseMove)
         .on("mouseleave", countryMouseLeave);
-  g.call(zoom);
 
   legend = svg => {
     const g = svg
