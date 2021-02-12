@@ -260,7 +260,7 @@ function drawMap(){
   var width = 700;
 
   colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
-  
+  ranges = {"low":"0-1000", "medium low":"1000-4000", "medium high":"4000-12000", "high":"12000+"}
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
   //africaFeatures = topojson.feature(mapData, mapData.objects.continent_Africa_subunits).features;
@@ -318,12 +318,12 @@ function drawMap(){
         .attr("width", 19)
         .attr("height", 19)
         .attr("fill", d=>colors[d.toLowerCase()]);
-  
+  console.log(ranges);
     g.append("text")
         .attr("x", -24)
         .attr("y", 9.5)
         .attr("dy", "0.35em")
-        .text(d => d+" income");
+        .text(d => d+` income (GDP: ${ranges[d.toLowerCase()]})`);
   }
 svg.append("g")
   .call(legend);
