@@ -82,7 +82,7 @@ function drawVerticalGroupBarChart(data, svgId, margin, groupKey, keys){
       .rangeRound([ 0,width - margin.right])
 
   color = d3.scaleOrdinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
+    .range([ "#8a89a6","#98abc5"])
   bar_styler = (bar)  => {
     return bar.attr("y", d => y1(d.key))
       .attr("x", d => margin.left)
@@ -177,7 +177,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .rangeRound([height - margin.bottom, margin.top])
 
   color = d3.scaleOrdinal().domain(keys)
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
+    .range([ "#8a89a6","#98abc5"])
   bar_styler = (bar)  => {
     return bar.attr("x", d => x1(d.key))
       .attr("y", d => y(d.value))
