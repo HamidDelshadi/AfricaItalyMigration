@@ -2,6 +2,21 @@
     background-color: #f8f8f8;
 } */
 
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+.flag{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+.total-info{
+    margin-top:40px;
+    margin-bottom: 40px;
+}
 .nav-link{
     background-color: transparent;
 }
@@ -185,8 +200,58 @@ font-size: .8rem;
     color:#70757a;
 }
 
-#bracket-info{
+.info-box{
     border: 1px solid #dfe1e5;
     border-radius: 20px;
     padding: 20px;
+}
+
+
+
+
+.eu-card{
+    border: none;
+    float: left;
+}
+.it-card{
+    border: none;
+    float: right;
+    text-align: right;
+}
+#it-flag{
+    float: right;
+}
+#eu-flag{
+    float:left;
+}
+.total-card{
+    padding: 10px;
+}
+.total-card p{
+    margin:0;
+}
+.total-card p:nth-child(1){
+    font-size: 0.9em;
+    color: #3c4043;
+    line-height: 1.4em;
+}
+.total-card p:nth-child(2){
+    line-height: 1.2em;
+    font-size: 1.8em;
+    color: black;
+}
+.total-card p:nth-child(3){
+    font-size: 0.7em;
+    color:#70757a;
+}
+
+.total-box{
+    border: 1px solid #dfe1e5;
+    border-radius: 20px;
+    padding: 20px;
+    width: 100%;
+}
+#total-title{
+    font-family: 'Montserrat',sans-serif;
+    font-size: 1.5em;
 }

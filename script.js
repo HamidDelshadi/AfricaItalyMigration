@@ -506,12 +506,14 @@ function drawCountryBarChart(plotType="requests"){
     
   if(plotType=="requests" || plotType=="residents")
   {
-    d3.select("#normalize-country-switch").attr("disabled", null);
+    d3.select("#normalize-country-switch-div").classed("animate__fadeInDown", true)
+    .classed("animate__fadeOutUp", false).select("input").attr("disabled", null);
     if(DataContext.normalizeCountries)
       keys = keys.map(d=> "Normal_"+d);
   }
   else
-    d3.select("#normalize-country-switch").attr("disabled", "disabled");
+    d3.select("#normalize-country-switch-div").classed("animate__fadeInDown", false)
+    .classed("animate__fadeOutUp", true).select("input").attr("disabled", "disabled");
   
   drawGroupBarChart(DataContext.ds, "#country-bar-chart-horizontal", margin, "country", keys)
   drawVerticalGroupBarChart(DataContext.ds, "#country-bar-chart-vertical", vmargin, "country", keys)
@@ -686,24 +688,31 @@ function drawBracketCharts(plotType="requests"){
   if(plotType=="requests")
   {
     isRequest = true;
-    d3.selectAll("#sunburst-options").style("visibility", "visible")
+    d3.selectAll("#sunburst-options").classed("animate__fadeInDown", true)
+    .classed("animate__fadeOutUp", false);
     var keys = ["EU", "IT"];
   }
   else
   {
-    d3.selectAll("#sunburst-options").style("visibility", "hidden")
+    d3.selectAll("#sunburst-options").classed("animate__fadeInDown", false)
+    .classed("animate__fadeOutUp", true);
     var keys= [plotType]
   }
 
     
   if(plotType=="requests" || plotType=="residents")
   {
-    d3.select("#normalize-bracket-switch").attr("disabled", null);
+    d3.select("#normalize-bracket-switch-div")
+      .classed("animate__fadeInDown", true)
+      .classed("animate__fadeOutUp", false).select("input").attr("disabled", null);
+
     if(DataContext.normalizeBrackets)
       keys = keys.map(d=> "Normal_"+d);
   }
   else
-    d3.select("#normalize-bracket-switch").attr("disabled", "disabled");
+    d3.select("#normalize-bracket-switch-div")
+      .classed("animate__fadeInDown", false)
+      .classed("animate__fadeOutUp", true).select("input").attr("disabled", true);
 
 
   var margin = ({top: 50, right: 50, bottom: 80, left: 80})
@@ -757,6 +766,10 @@ function CreateBracketInfo(data){
 function initSVGs(svgIds){
   svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
 }
+function showTotals(){
+  d3.select("#EU-total-value").text(DataContext.total.EUSum);
+  d3.select("#IT-total-value").text(DataContext.total.ITSum);
+}
 
 function loadData(){
 
@@ -768,7 +781,9 @@ function loadData(){
         IT : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
         EU : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
         Normal_EU : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
-        Normal_IT : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0}
+        Normal_IT : {2013:0, 2014:0, 2015:0, 2016:0, 2017:0, 2018:0},
+        ITSum:0,
+        EUSum:0
       };
       var totalPopulation =0;
       csv.forEach(d=>
@@ -790,6 +805,8 @@ function loadData(){
             d["Normal_IT"+i]= +d["Normal_IT"+i];
             total.IT[i] += d["IT"+i];
             total.EU[i] += d["EU"+i];
+            total.ITSum += d["IT"+i];
+            total.EUSum += d["EU"+i];
           }
         }
       );
@@ -822,6 +839,7 @@ function loadData(){
       DataContext.Normal_residentsHierarchy = changeToHierarchy(csv,hKeys, ["Normal_residents"]);
       
       drawCountryBarChart();
+      showTotals();
       
     }),
     d3.csv("data/bracket.csv").then(csv=>{

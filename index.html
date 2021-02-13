@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Africa: Migrants and Incomes</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="style.css?version=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     
@@ -33,7 +36,50 @@
           </ul>
         </div>
     </nav>
-    <div class="container-fluid">      
+    <div class="container-fluid"> 
+      <div class="row total-info">
+        <div id="total-info" class="col-12 total-box">
+          <div class="row">
+            <div class="col-md-4">
+              <div id="eu-flag" class="center">
+                <img class="flag"src="resources/eu.png">
+              </div>
+              <div class="eu-card total-card">
+                <p>EU</p>
+                <p id="EU-total-value">982821923</p>
+                <p>Asylum Requests (2013-2018)</p>
+              </div>
+            </div>
+
+            <div class="col-md-4 d-none d-md-block">
+              <div id="total-title" class="center">
+                <span>Asylum Requests From Africa</span>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div  id="it-flag" class="center">
+                <img class="flag" src="resources/it.png">
+              </div>
+              <div class="it-card total-card">
+                <p>Italy</p>
+                <p id="IT-total-value">85002134</p>
+                <p>Asylum Requests (2013-2018)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <ul class="nav nav-tabs justify-content-center year-nav">
+            <li class="nav-item">
+              <select class="nav-link active" id="select-country-options" onchange="changeCountry(this.options[this.selectedIndex].value)">
+            </select>
+            </li>
+          </ul>
+        </div>
+      </div>
       <div class="row">
         <div class="col-md-6 align-self-center" id="map-col">
           
@@ -42,12 +88,7 @@
         </div>
   
         <div class="col-md-6 year-diagram align-self-center">
-          <ul class="nav nav-tabs justify-content-center year-nav">
-            <li class="nav-item">
-              <select class="nav-link active" id="select-country-options" onchange="changeCountry(this.options[this.selectedIndex].value)">
-            </select>
-            </li>
-          </ul>
+          
           
           <svg id="year-bar-chart" viewbox="0 0 700 600" preserveAspectRatio="xMinYMin">
           </svg>
@@ -79,7 +120,7 @@
               </li>
             </ul>
           </div>
-          <div class="options custom-control custom-switch">
+          <div class="options custom-control custom-switch animate__animated" id="normalize-country-switch-div">
             <input type="checkbox" class="custom-control-input" id="normalize-country-switch" onchange="normalizeCountries()">
             <label class="custom-control-label" for="normalize-country-switch">Normalize by population (in 10,000 people)</label>
           </div>
@@ -105,7 +146,7 @@
               <button id="bracket-nav-population" class="nav-link" onclick="drawBracketCharts('population')">Population</a>
             </li>
           </ul>
-          <div class="options custom-control custom-switch">
+          <div class="options custom-control custom-switch animate__animated" id="normalize-bracket-switch-div">
             <input type="checkbox" class="custom-control-input" id="normalize-bracket-switch" onchange="normalizeBracket()">
             <label class="custom-control-label" for="normalize-bracket-switch">Normalize by population (in 10,000 people)</label>
           </div>
@@ -114,7 +155,7 @@
       <div class="row">
 
         <div class="col-md-6 align-self-center">
-          <div id="sunburst-options">
+          <div id="sunburst-options" class="animate__animated">
             <div class="btn-group">
               <button id="sunburst-eu-button" type="button" class="btn btn-outline-secondary" onclick="sunburstChangeLocation('EU')">EU</button>
               <button id="sunburst-it-button" type="button" class="btn btn-secondary" onclick="sunburstChangeLocation('IT')">Italy</button>
@@ -131,7 +172,7 @@
         </div>
       </div>
       <div class="row footer">
-        <div id="bracket-info" class="mx-auto">
+        <div id="bracket-info" class="info-box mx-auto">
 
         </div>
       </div>
