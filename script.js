@@ -892,7 +892,6 @@ function loadData(){
     drawYearBarChart();
     drawBracketCharts();
     drawMap();
-    dropPin("TCD","#map-svg")
   });//.catch( err =>console.log(err));
   
 }
