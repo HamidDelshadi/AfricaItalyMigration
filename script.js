@@ -50,6 +50,8 @@ function getCountryName(d){
 }
 
 function getISO(d){
+  if(d.iso)
+    return d.iso;
   return d.properties.iso_a3;
 }
 
@@ -337,7 +339,39 @@ function drawMap(){
   }
 svg.append("g")
   .call(legend);
-svg.append("g").attr("id", "pin-g");
+
+svg.append("g").selectAll("path")
+  .data(DataContext.smallIslands)
+  .join("path")
+  .attr("d", d=>d.d)
+  .attr("transform", d=>`translate(${d.x},${d.y})`)
+  .classed("countries", true)
+  .attr("id", d=>getISO(d))
+  .attr("country", d=> getCountryName(d))
+  .style("fill", d=> 
+  {
+    try{
+      return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+    }
+    catch(ex){
+      return "#d9d9d9";
+    }
+  })
+  .attr("originalcolor", d=> 
+  {
+    try{
+      return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+    }
+    catch(ex){
+      return "#d9d9d9";
+    }
+  })
+  .on("click", countryMouseClick)
+  .on("mouseenter", countryMouseEnter)
+  .on("mousemove", countryMouseMove)
+  .on("mouseleave", countryMouseLeave);
+
+  svg.append("g").attr("id", "pin-g");
 }
 
 function loadListOfCountries(){
@@ -351,7 +385,8 @@ function loadListOfCountries(){
     .attr("value", d=>d)
     .text(d=>d)
     .attr("id", d=>"option-"+CountryNameToISO(d))
-    .attr("selected", d=>(d=="Africa")?true:null);
+    .attr("selected", d=>(d=="Africa")?true:null)
+    ;
 }
 
 /*    years charts events    */
@@ -470,21 +505,6 @@ function drawYearBarChart(country="Africa")
   drawGroupBarChart(data,"#year-bar-chart", margin,"year",["EU","IT"])
 }
 
-// function showTotal(flag){
-//     d3.select("#select-country-options").classed("active", !flag);
-//     d3.select("#africa-button").classed("active", flag);
-//     if(flag)
-//     {
-//       drawYearBarChart("Africa");
-//     }
-//     else
-//     {
-//       if(DataContext.selectedCountry)
-//         drawYearBarChart(DataContext.selectedCountry);
-//     }
-// }
-
-/*      countries chart events      */
 function normalizeCountries()
 {
   DataContext.normalizeCountries = !DataContext.normalizeCountries;
@@ -862,6 +882,10 @@ function loadData(){
 
       console.log(mapData);
       DataContext.mapData =mapData;
+    }),
+    d3.json("data/islands.json").then(function(islands){
+      console.log(islands);
+      DataContext.smallIslands = islands.islands;
     })
   ]).then(()=>{
     loadListOfCountries();
@@ -897,6 +921,11 @@ function changeToHierarchy(raw,keys,leafKeys){
 
 function dropPin(iso){
 var selectedFeature = DataContext.africaFeatures.filter(d=>getISO(d)==iso);
+smallIslandFlag = false;
+if(selectedFeature.length == 0){
+  selectedFeature = DataContext.smallIslands.filter(d=>d.iso == iso);
+  smallIslandFlag = true;
+}
 return d3.select("#pin-g").selectAll("path")
     .data(selectedFeature)
     .join("path")
@@ -906,7 +935,8 @@ return d3.select("#pin-g").selectAll("path")
     .on("mousemove", countryMouseMove)
     .on("mouseleave", countryMouseLeave)
     .transition(750)
-    .attr("transform", d=>`translate(${projection(d3.geoCentroid(d))[0]},${projection(d3.geoCentroid(d))[1]})scale(0.75,0.75)`)
+    .attr("transform", d=>
+      !smallIslandFlag ? `translate(${projection(d3.geoCentroid(d))[0]},${projection(d3.geoCentroid(d))[1]})scale(0.75,0.75)` : `translate(${d.x},${d.y})scale(0.75,0.75)`)
 }
         
 $(document).ready(function(){
