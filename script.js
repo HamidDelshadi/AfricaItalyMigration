@@ -260,7 +260,7 @@ function drawMap(){
   svg_id ="#map-svg";
   mapData = DataContext.mapData;
 
-  var svgBounds = d3.select("#map-svg").node().getBoundingClientRect();
+  var svgBounds = d3.select(svg_id).node().getBoundingClientRect();
 
   var height = 600;
   var width = 700;
@@ -274,6 +274,7 @@ function drawMap(){
   var path = d3.geoPath().projection(projection);
   //africaFeatures = topojson.feature(mapData, mapData.objects.continent_Africa_subunits).features;
   africaFeatures = mapData.features;
+  DataContext.africaFeatures = africaFeatures;
   console.log(africaFeatures);
   const svg = d3.select(svg_id);
   createPatterns(svg, colors);
@@ -336,7 +337,7 @@ function drawMap(){
   }
 svg.append("g")
   .call(legend);
-
+svg.append("g").attr("id", "pin-g");
 }
 
 function loadListOfCountries(){
@@ -376,10 +377,12 @@ function changeCountry(country)
   }
   try{
     const newCountry = d3.select("#"+iso);
+    dropPin(iso,"#map-svg")
     if(newCountry)
     {
       c1 = newCountry.attr("originalcolor");
       newCountry.style("fill",`url("${c1}-pattern")`)
+
     }
   }catch(err){
     console.log("one of the small islands is selected");
@@ -865,6 +868,7 @@ function loadData(){
     drawYearBarChart();
     drawBracketCharts();
     drawMap();
+    dropPin("TCD","#map-svg")
   });//.catch( err =>console.log(err));
   
 }
@@ -891,6 +895,20 @@ function changeToHierarchy(raw,keys,leafKeys){
   return data;
 }
 
+function dropPin(iso){
+var selectedFeature = DataContext.africaFeatures.filter(d=>getISO(d)==iso);
+return d3.select("#pin-g").selectAll("path")
+    .data(selectedFeature)
+    .join("path")
+    .attr("d", "M0,0l-8.8-17.7C-12.1-24.3-7.4-32,0-32h0c7.4,0,12.1,7.7,8.8,14.3L0,0z")
+    .classed("pin", true)
+    .on("mouseenter", countryMouseEnter)
+    .on("mousemove", countryMouseMove)
+    .on("mouseleave", countryMouseLeave)
+    .transition(750)
+    .attr("transform", d=>`translate(${projection(d3.geoCentroid(d))[0]},${projection(d3.geoCentroid(d))[1]})scale(0.75,0.75)`)
+}
+        
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();   
     initSVGs(["#year-bar-chart","#country-bar-chart-horizontal","#bracket-bar-chart"])

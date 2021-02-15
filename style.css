@@ -255,3 +255,6 @@ font-size: .8rem;
     font-family: 'Montserrat',sans-serif;
     font-size: 1.5em;
 }
+.pin{
+    fill: mediumvioletred;
+}
