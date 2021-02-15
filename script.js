@@ -393,13 +393,16 @@ function loadListOfCountries(){
 function changeCountry(country)
 {
   iso = CountryNameToISO(country);
-  d3.selectAll("#select-country-options option").attr("selected", null);
-  d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
+
 
   if(country!="Africa" && !DataContext.ds.some(d=> d.country == country))
   {
-    showUserMessage(`There is no data available about ${country}`);return;
+    showUserMessage(`There is no data available related to ${country}`);return;
   }
+
+  d3.selectAll("#select-country-options option").attr("selected", null);
+  d3.select("#select-country-options").select("#option-"+iso).attr("selected", true);
+
   try{
     if(DataContext.selectedCountryISO)
     {
@@ -408,7 +411,7 @@ function changeCountry(country)
       oldCountry.style("fill", c2);
   }}
   catch(err){
-      console.log("one of the small islands is selected");
+      console.log("country is selected");
   }
   try{
     const newCountry = d3.select("#"+iso);
@@ -420,7 +423,7 @@ function changeCountry(country)
 
     }
   }catch(err){
-    console.log("one of the small islands is selected");
+    console.log("country is selected");
   }
   
   
