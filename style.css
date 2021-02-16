@@ -258,3 +258,12 @@ font-size: .8rem;
 .pin{
     fill: mediumvioletred;
 }
+.sunburst-label{
+    font-size: 0.8rem;
+}
+
+@media (max-width: 575.98px) {
+    .sunburst-label{
+        font-size: 1.8vw;
+    }
+}

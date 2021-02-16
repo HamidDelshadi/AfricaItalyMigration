@@ -623,7 +623,7 @@ function drawSunburst(data,showNameInLeaf){
     .data(root.descendants().slice(1))
     .join("text")
       .attr("dy", "0.35em")
-      .attr("font-size", "1.5vw")
+      .classed("sunburst-label", true)
       .attr("fill-opacity", d => +labelVisible(d.current))
       .attr("transform", d => labelTransform(d.current))
       .text(d => {
