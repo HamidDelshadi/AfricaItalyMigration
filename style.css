@@ -5,7 +5,7 @@
 .center {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-itrems: center;
     height: 100%;
   }
 .flag{
@@ -62,7 +62,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    padding: 0.6em 1em;
+    padding: 0.6rem 1rem;
     background: #fff;
     box-shadow: 0 6px 8px rgba(52, 73, 94, .2), 0 1px 1px rgba(52, 73, 94, 0.1);
     z-index: 10;
@@ -162,8 +162,8 @@ font-size: .8rem;
     height: 38px;
 }
 #sunburst{
-    margin-right: 50px;
-    margin-left: 50px;
+    margin-right: 20px;
+    margin-left: 20px;
 }
 
 .year-nav{
@@ -186,17 +186,17 @@ font-size: .8rem;
     margin:0;
 }
 .info-card p:nth-child(1){
-    font-size: 0.8em;
+    font-size: 0.8rem;
     color: #3c4043;
-    line-height: 0.8em;
+    line-height: 0.8rem;
 }
 .info-card p:nth-child(2){
     
-    font-size: 1.7em;
+    font-size: 1.7rem;
     color: black;
 }
 .info-card p:nth-child(3){
-    font-size: 0.6em;
+    font-size: 0.6rem;
     color:#70757a;
 }
 
@@ -231,17 +231,17 @@ font-size: .8rem;
     margin:0;
 }
 .total-card p:nth-child(1){
-    font-size: 0.9em;
+    font-size: 0.9rem;
     color: #3c4043;
-    line-height: 1.4em;
+    line-height: 1.4rem;
 }
 .total-card p:nth-child(2){
-    line-height: 1.2em;
-    font-size: 1.8em;
+    line-height: 1.2rem;
+    font-size: 1.8rem;
     color: black;
 }
 .total-card p:nth-child(3){
-    font-size: 0.7em;
+    font-size: 0.7rem;
     color:#70757a;
 }
 
@@ -253,7 +253,7 @@ font-size: .8rem;
 }
 #total-title{
     font-family: 'Montserrat',sans-serif;
-    font-size: 1.5em;
+    font-size: 1.5rem;
 }
 .pin{
     fill: mediumvioletred;
