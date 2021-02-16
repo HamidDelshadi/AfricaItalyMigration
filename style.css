@@ -13,9 +13,7 @@
     height: 70px;
     border-radius: 50%;
 }
-.total-info{
-    margin-top:40px;
-    margin-bottom: 40px;
+
 }
 .nav-link{
     background-color: transparent;
@@ -171,7 +169,7 @@ font-size: .8rem;
 }
 .footer{
     padding-bottom: 50px;
-    margin-top: 25px;
+    padding: 25px 10px;
 }
 .info-card:nth-child(1){
     border: none;
@@ -244,12 +242,14 @@ font-size: .8rem;
     font-size: 0.7rem;
     color:#70757a;
 }
-
 .total-box{
     border: 1px solid #dfe1e5;
     border-radius: 70px;
     padding: 18px!important;
     width: 100%;
+}
+#total-info{
+    padding: 15px 10px 10px 10px;
 }
 #total-title{
     font-family: 'Montserrat',sans-serif;
@@ -266,4 +266,5 @@ font-size: .8rem;
     .sunburst-label{
         font-size: 1.8vw;
     }
+
 }
