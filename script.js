@@ -39,7 +39,7 @@ function createPattern(defs, fill) {
 }
 
 function createPatterns(svg, colors){
-  Object.values(colors).forEach(color => {
+  colors.forEach(color => {
     createPattern(svg, color);
   });
 }
@@ -179,7 +179,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .rangeRound([height - margin.bottom, margin.top])
 
   color = d3.scaleOrdinal().domain(keys)
-    .range([ "#8a89a6","#98abc5"])
+    .range([ "#2683c6","#32b3e2"])
   bar_styler = (bar)  => {
     return bar.attr("x", d => x1(d.key))
       .attr("y", d => y(d.value))
@@ -214,11 +214,7 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
   yAxis = g => g
     .attr("transform", `translate(${margin.left},0)`)
     .transition(t)
-    .call(d3.axisLeft(y));//.ticks(null, "s"))
-    // .call(g => g.select(".tick:last-of-type text").clone()
-    //     .attr("x", 3)
-    //     .attr("text-anchor", "start")
-    //     .text(data.y));
+    .call(d3.axisLeft(y));
     
   d3.select(svgId+" > g:nth-child(2)")
       .call(xAxis).selectAll("text")
@@ -266,12 +262,14 @@ function drawMap(){
 
   var height = 600;
   var width = 700;
-  var colorScale = d3.scaleThreshold()
-  colors = {"low":"#bdd7e7","medium low":"#6baed6", "medium high":"#3182bd", "high":"#08519c"};
-  colorScale.domain(Object.keys(colors))
-    .range(Object.values(colors));
   
-  ranges = {"low":"0-1000", "medium low":"1000-4000", "medium high":"4000-12000", "high":"12000+"}
+  colors = ["#bdd7e7","#6baed6", "#3182bd", "#08519c"];
+  brackets = DataContext.bracket.map(d=>d.bracket.toLowerCase());
+  ranges = DataContext.bracket.map(d=>d.range);
+  var colorScale = d3.scaleOrdinal()
+    .domain(brackets)
+    .range(colors);
+  
   projection = d3.geoConicConformal().scale(350).translate([200, 270]);
   var path = d3.geoPath().projection(projection);
   //africaFeatures = topojson.feature(mapData, mapData.objects.continent_Africa_subunits).features;
@@ -294,7 +292,7 @@ function drawMap(){
         .style("fill", d=> 
         {
           try{
-            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+            return colorScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket)
           }
           catch(ex){
             return "#d9d9d9";
@@ -303,7 +301,7 @@ function drawMap(){
         .attr("originalcolor", d=> 
         {
           try{
-            return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+            return colorScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket)
           }
           catch(ex){
             return "#d9d9d9";
@@ -329,13 +327,13 @@ function drawMap(){
         .attr("x", -19)
         .attr("width", 19)
         .attr("height", 19)
-        .attr("fill", d=>colors[d.toLowerCase()]);
+        .attr("fill", d=>colorScale(d.toLowerCase()));
   console.log(ranges);
     g.append("text")
         .attr("x", -24)
         .attr("y", 9.5)
         .attr("dy", "0.35em")
-        .text(d => d+` income (PPP: ${ranges[d.toLowerCase()]})`);
+        .text((d,i) => d+` income (PPP: ${ranges[i]})`);
   }
 svg.append("g")
   .call(legend);
@@ -351,7 +349,7 @@ svg.append("g").selectAll("path")
   .style("fill", d=> 
   {
     try{
-      return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+      return colorScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket)
     }
     catch(ex){
       return "#d9d9d9";
@@ -360,7 +358,7 @@ svg.append("g").selectAll("path")
   .attr("originalcolor", d=> 
   {
     try{
-      return colors[DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket]
+      return colorScale(DataContext.ds[DataContext.ds.findIndex(k=> k.country == getCountryName(d))].bracket)
     }
     catch(ex){
       return "#d9d9d9";
@@ -895,7 +893,7 @@ function loadData(){
     drawYearBarChart();
     drawBracketCharts();
     drawMap();
-  });//.catch( err =>console.log(err));
+  }).catch( err =>console.log(err));
   
 }
 
