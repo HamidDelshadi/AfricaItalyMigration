@@ -16,7 +16,7 @@
 <body>
   
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <span class="navbar-brand" href="#">Africa: Migrants and Income</span>
+        <span class="navbar-brand">Africa: Migrants and Income</span>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -43,7 +43,7 @@
             <div class="row">
               <div class="col-md-5 col-lg-4">
                 <div id="eu-flag" class="center">
-                  <img class="flag"src="resources/eu.png">
+                  <img class="flag" src="resources/eu.png" alt="EU flag">
                 </div>
                 <div class="eu-card total-card">
                   <p>EU</p>
@@ -61,7 +61,7 @@
 
               <div class="col-md-5 col-lg-4">
                 <div  id="it-flag" class="center">
-                  <img class="flag" src="resources/it.png">
+                  <img class="flag" src="resources/it.png" alt="IT flag">
                 </div>
                 <div class="it-card total-card">
                   <p>Italy</p>
@@ -110,16 +110,16 @@
           <div id="country-chart-nav">
             <ul class="nav nav-tabs justify-content-center">
               <li class="nav-item">
-                <button id="country-nav-requests" class="nav-link active" onclick="drawCountryBarChart('requests')">Requests</a>
+                <button id="country-nav-requests" class="nav-link active" onclick="drawCountryBarChart('requests')">Requests</button>
               </li>
               <li class="nav-item">
-                <button id="country-nav-residents" class="nav-link" onclick="drawCountryBarChart('residents')">Residents (IT)</a>
+                <button id="country-nav-residents" class="nav-link" onclick="drawCountryBarChart('residents')">Residents (IT)</button>
               </li>
               <li class="nav-item">
-                <button id="country-nav-population" class="nav-link" onclick="drawCountryBarChart('population')">Population</a>
+                <button id="country-nav-population" class="nav-link" onclick="drawCountryBarChart('population')">Population</button>
               </li>
               <li class="nav-item">
-                <button id="country-nav-gdp" class="nav-link" onclick="drawCountryBarChart('GDP')">Purchasing Power Parity</a>
+                <button id="country-nav-gdp" class="nav-link" onclick="drawCountryBarChart('GDP')">Purchasing Power Parity</button>
               </li>
             </ul>
           </div>
@@ -140,13 +140,13 @@
         <div class="col-12" id="bracket-chart-nav">
           <ul class="nav nav-tabs justify-content-center">
             <li class="nav-item">
-              <button id="bracket-nav-requests" class="nav-link active" onclick="drawBracketCharts('requests')">Requests</a>
+              <button id="bracket-nav-requests" class="nav-link active" onclick="drawBracketCharts('requests')">Requests</button>
             </li>
             <li class="nav-item">
               <button id="bracket-nav-residents" class="nav-link" onclick="drawBracketCharts('residents')">Residents (IT)</button>
             </li>
             <li class="nav-item">
-              <button id="bracket-nav-population" class="nav-link" onclick="drawBracketCharts('population')">Population</a>
+              <button id="bracket-nav-population" class="nav-link" onclick="drawBracketCharts('population')">Population</button>
             </li>
           </ul>
           <div class="options custom-control custom-switch animate__animated" id="normalize-bracket-switch-div">
@@ -176,7 +176,6 @@
       </div>
       <div class="row footer">
           <div id="bracket-info" class="info-box mx-auto">
-
         </div>
       </div>
     </div>

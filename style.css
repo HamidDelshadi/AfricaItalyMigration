@@ -5,16 +5,16 @@
 .center {
     display: flex;
     justify-content: center;
-    align-itrems: center;
+    align-items: center;
     height: 100%;
   }
+  
 .flag{
     width: 70px;
     height: 70px;
     border-radius: 50%;
 }
 
-}
 .nav-link{
     background-color: transparent;
 }
@@ -249,7 +249,7 @@ font-size: .8rem;
     width: 100%;
 }
 #total-info{
-    padding: 15px 10px 10px 10px;
+    padding: 23px 10px 10px 10px;
 }
 #total-title{
     font-family: 'Montserrat',sans-serif;
