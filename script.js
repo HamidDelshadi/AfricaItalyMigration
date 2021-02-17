@@ -185,7 +185,8 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
     //.range(["#4ca5b3", "#4089b7"])
     //.range([ "#ff8080", "#ffcccc"])
     //.range(["#6baed6","#00a140"])
-    .range(["#2390be","#81ccbb"])
+    //.range(["LightSlateGray","#81ccbb"])
+    .range(["#bec4f8","#81ccbb"])
     //.range(["#2e83be", "#6bb0d7"])
     
   bar_styler = (bar)  => {
