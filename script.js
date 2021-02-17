@@ -10,6 +10,7 @@ var DataContext = {
   normalizeBrackets:false,
   normalizeYears:false,
 };
+var f = d3.format(",");
 
 /*    utilities    */
 function showUserMessage(msg){
@@ -179,12 +180,15 @@ function drawGroupBarChart(data, svgId, margin, groupKey, keys){
       .rangeRound([height - margin.bottom, margin.top])
 
   color = d3.scaleOrdinal().domain(keys)
-    .range([ "#2683c6","#32b3e2"])
+    //.range([ "#2683c6","#32b3e2"])
+    //.range([ "#f06d48","#83cda7"])
+    .range(["#4ca5b3", "#4089b7"])
   bar_styler = (bar)  => {
     return bar.attr("x", d => x1(d.key))
       .attr("y", d => y(d.value))
       .attr("width", x1.bandwidth())
       .attr("height", d => y(0) - y(d.value))
+      //.style("opacity", "0.4")
       // .attr("data-toggle", "tooltip")
       // .attr("data-placement", "top")
       // .attr("title", d=>d.value)
@@ -442,12 +446,12 @@ function countryMouseEnter(ent, datum){
   d3.selectAll(".info-country-name").text(country);
   if(row)
   {
-    d3.selectAll(".info-population").text("population: " + row.population);
-    d3.selectAll(".info-GDP").text("PPP: "+ row.GDP);
-    d3.selectAll(".info-req-EU").text(row.EU);
-    d3.selectAll(".info-req-normal-EU").text(row.Normal_EU);
-    d3.selectAll(".info-req-IT").text(row.IT);
-    d3.selectAll(".info-req-normal-IT").text(row.Normal_IT);
+    d3.selectAll(".info-population").text("population: " + f(row.population));
+    d3.selectAll(".info-GDP").text("PPP: "+ f(row.GDP));
+    d3.selectAll(".info-req-EU").text(f(row.EU));
+    d3.selectAll(".info-req-normal-EU").text(f(row.Normal_EU));
+    d3.selectAll(".info-req-IT").text(f(row.IT));
+    d3.selectAll(".info-req-normal-IT").text(f(row.Normal_IT));
     d3.selectAll(".info-bracket-name").text(row.bracket+" income");
   }
   else{
@@ -791,8 +795,8 @@ function initSVGs(svgIds){
   svgIds.forEach(d=>d3.select(d).selectAll("g").data([0,0,0,0]).join("g"));
 }
 function showTotals(){
-  d3.select("#EU-total-value").text(DataContext.total.EUSum);
-  d3.select("#IT-total-value").text(DataContext.total.ITSum);
+  d3.select("#EU-total-value").text(f(DataContext.total.EUSum));
+  d3.select("#IT-total-value").text(f(DataContext.total.ITSum));
 }
 
 function loadData(){
