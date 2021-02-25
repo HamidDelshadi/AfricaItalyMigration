@@ -560,7 +560,12 @@ function drawSunburst(data,showNameInLeaf){
   var width = svgBounds.width;
   radius = width / 6
   format = d3.format(",d")
-  color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, data.children.length + 1))
+  colors = ["#bdd7e7","#6baed6", "#3182bd", "#08519c"];
+  brackets = DataContext.bracket.map(d=>d.bracket.toLowerCase());
+  ranges = DataContext.bracket.map(d=>d.range);
+  var color = d3.scaleOrdinal()
+    .domain(brackets)
+    .range(colors);
 
   arc = d3.arc()
     .startAngle(d => d.x0)
